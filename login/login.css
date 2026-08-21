@@ -118,6 +118,17 @@ body{
     color:#777;
 }
 
+.login_feedback {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #fca5a5;
+    border-radius: 10px;
+    color: #b91c1c;
+    background: #fee2e2;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 .footer_text a{
     color:#2563eb;
     text-decoration:none;

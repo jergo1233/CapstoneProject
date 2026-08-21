@@ -10,6 +10,28 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentX = 0;
     let isDragging = false;
     let autoSlide;
+    let suppressCardClick = false;
+
+    function markAsDrag(distance) {
+        if (Math.abs(distance) > 8) {
+            suppressCardClick = true;
+        }
+    }
+
+    function allowFutureClicks() {
+        setTimeout(function () {
+            suppressCardClick = false;
+        }, 0);
+    }
+
+    // A completed drag can also produce a browser click. Cancel that click so
+    // dragging a card never opens a link or reloads the current page.
+    slider.addEventListener("click", function (event) {
+        if (suppressCardClick) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }, true);
 
     /* =========================
        MOVE SLIDER
@@ -90,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         currentX = event.touches[0].clientX;
         const difference = currentX - startX;
+        markAsDrag(difference);
         const percentage =
             (difference / slider.parentElement.offsetWidth) * 100;
         const position =
@@ -124,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
             moveSlider(currentIndex);
         }
         startAutoSlide();
+        allowFutureClicks();
     });
 
 
@@ -152,6 +176,7 @@ slider.addEventListener("mousemove", function (event) {
     }
     mouseCurrentX = event.clientX;
     const difference = mouseCurrentX - mouseStartX;
+    markAsDrag(difference);
     const percentage = (difference / slider.parentElement.offsetWidth) * 100;
     const position =  -(currentIndex * 100) + percentage;
     slider.style.transform =
@@ -184,5 +209,6 @@ document.addEventListener("mouseup", function () {
         moveSlider(currentIndex);
     }
     startAutoSlide();
+    allowFutureClicks();
 });
 });

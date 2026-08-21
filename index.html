@@ -15,11 +15,11 @@
 
     <form id="loginForm">
         <div class="input_group">
-            <input type="email" id="email" name="email" placeholder="Email@gmail.com" required>
+            <input type="email" id="email" name="email" placeholder="Email@gmail.com" autocomplete="email" required>
         </div>
 
         <div class="input_group">
-            <input type="password" id="password" class="password-input" placeholder="Password" required>
+            <input type="password" id="password" name="password" class="password-input" placeholder="Password" autocomplete="current-password" required>
 
             <button
                 type="button" class="toggle_password" id="togglePassword">
@@ -29,6 +29,8 @@
         </div>
         <button type="submit" class="signin_btn">Sign In</button>
     </form>
+
+    <p id="loginFeedback" class="login_feedback" role="alert" aria-live="polite" hidden></p>
 
     <div class="footer_text">New resident? <a href="register.html">Create account</a></div>
 </div>

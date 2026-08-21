@@ -66,7 +66,8 @@
                         </button>
                         <span>Submit Report</span>
                     </h3>
-                    <form onsubmit="processForm(event)">
+                    <form id="report_form" onsubmit="processForm(event)" novalidate>
+                        <div id="form_feedback" class="form_feedback" role="status" aria-live="polite" hidden></div>
                         <div class="form_group">
                             <label for="category" class="label">Category</label>
                             <select
@@ -76,17 +77,17 @@
                                 data-fb-field="category"
                             >
                                 <option value="" disabled selected>Select Category</option>
-                                <option value="Waste Management">Infrastructures</option>
-                                <option value="Road Hazard">Waste Management</option>
-                                <option value="Infrastructure">Drainage and Flooding</option>
-                                <option value="Infrastructure">Public Facilities</option>
-                                <option value="Infrastructure">Electrical and Streetlight</option>
-                                <option value="Infrastructure">Road Obstruction</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Waste Management">Waste Management</option>
+                                <option value="Road Hazard">Road Hazard</option>
+                                <option value="Drainage and Flooding">Drainage and Flooding</option>
+                                <option value="Public Facilities">Public Facilities</option>
+                                <option value="Electrical and Streetlight">Electrical and Streetlight</option>
                             </select>
                         </div>
                         <div class="form_group">
                             <label for="location" class="label">Location</label>
-                            <input list="barangay" id="location" class="form_control" name="barangayInput" placeholder="Barangay/Present Location" required>
+                            <input list="barangay" id="location" class="form_control" name="location" placeholder="Barangay/Present Location" autocomplete="address-level3" required>
                             <datalist id = "barangay">
                             <option value="Amatong">Amatong</option>
                             <option value="Anahao">Anahao</option>
@@ -122,7 +123,6 @@
                                 class="form_control"
                                 rows="4"
                                 placeholder="Describe the issue in detail....."
-                                style="resize:none;"
                                 required
                                 data-fb-field="description"
                             ></textarea>
@@ -233,6 +233,10 @@
                     <div class="detail_section">
                         <h3 class="detail_title">Category</h3>
                         <p id="detail_category" class="detail_text" data-fb-field="category">Electrical and Streetlight</p>
+                    </div>
+                    <div class="detail_section">
+                        <h3 class="detail_title">Location</h3>
+                        <p id="detail_location" class="detail_text">Brgy. Amatong, Purok Pag-asa</p>
                     </div>
                     <!-- DESCRIPTION SECTION -->
                     <div class="detail_section">

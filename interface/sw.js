@@ -1,40 +1,56 @@
-const CACHE_NAME = 'muni-app-v1';
+const CACHE_NAME = "muni-app-v2";
+const NETWORK_FIRST_DESTINATIONS = new Set(["document", "script", "style"]);
 
-// 1. Install Event: Mabilis na pag-install nang hindi naghihintay
-self.addEventListener('install', (e) => {
+function isCacheable(response) {
+  return response && response.status === 200 && response.type === "basic";
+}
+
+async function cacheResponse(request, response) {
+  if (isCacheable(response)) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-// 2. Activate Event: Paglilinis ng mga lumang cache
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => k !== CACHE_NAME && caches.delete(k)))
-    )
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
+    ).then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
-// 3. Dynamic Cache & Fetch: Kapag in-open ang page o icon, i-sa-save ito kusa sa cache
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      // Kung naka-cache na, ibalik agad para instant load
-      if (cached) return cached;
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
 
-      // Kung wala pa sa cache, i-fetch sa network at i-save
-      return fetch(e.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
+  // Never interfere with form submissions or other non-GET requests.
+  if (request.method !== "GET") return;
 
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(e.request, responseToCache);
-        });
+  const isFreshnessCritical =
+    request.mode === "navigate" || NETWORK_FIRST_DESTINATIONS.has(request.destination);
 
-        return response;
-      });
-    })
+  if (isFreshnessCritical) {
+    // Pages, scripts, and styles should update immediately during development.
+    // If offline, the last successful version remains available from the cache.
+    event.respondWith(
+      fetch(request)
+        .then((response) => cacheResponse(request, response))
+        .catch(() => caches.match(request)),
+    );
+    return;
+  }
+
+  // Images and other assets load quickly from cache, then are saved after a
+  // successful first network request for future offline use.
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse;
+      return fetch(request).then((response) => cacheResponse(request, response));
+    }),
   );
 });
