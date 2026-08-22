@@ -37,10 +37,77 @@
                 <img src="assets_admin/megaphone (2).png" alt="icon" class="nav_icon">
                 <p class="nav_icon active_color" >Announcement</p>
             </a>
+            
         </div>
-
-
+           <div class="logout_container">
+        <a href="#" class="logout_link" onclick="handleLogout(event)">
+            <img src="assets_admin/Picture1.png" alt="Logout Icon" class="logout_icon">
+            <span>Log-out</span>
+        </a>
+    </div>
+    
     </section>
 
+
+
+    <!-- Main Content Area -->
+    <main class="main_content">
+        <div class="announcement_top_bar">
+            <h2>Announcement History</h2>
+            <button class="btn_create_announcement" id="openModalBtn">Create Announcement</button>
+            
+        </div>
+        <hr>
+        <!-- Announcement Cards Container -->
+        <div class="announcement_grid" id="announcementsList">
+
+
+        </div>
+    </main>
+
+    <!-- Modal Overlay para sa Create Announcement -->
+    <div class="modal-overlay" id="announcementModal">
+        <div class="announcement_modal_card">
+            <h3>Create Announcement</h3>
+            
+            <input type="text" id="announcementTitle" class="modal_input_field" placeholder="Title">
+            <textarea id="announcementContent" class="modal_textarea_field" placeholder="content"></textarea>
+            
+            <span class="attach_photos_label">Attach Photos</span>
+            <div class="photo_actions">
+                <!-- Camera Button na may PNG Image -->
+                <label for="imageUploadCamera" class="photo_btn">
+                    <img src="assets_admin/photo-camera.png" alt="Camera" class="btn_icon_img">
+                </label>
+                <input type="file" id="imageUploadCamera" accept="image/*" capture="environment" style="display: none;">
+
+                <!-- File Folder Button na may PNG Image -->
+                <label for="imageUploadFile" class="photo_btn">
+                    <img src="assets_admin/image.png" alt="Folder" class="btn_icon_img"> Choose File
+                </label>
+                <input type="file" id="imageUploadFile" accept="image/*" multiple style="display: none;">
+            </div>
+
+            <!-- Preview Container para sa na-upload na images -->
+            <div class="photo_previews" id="photoPreviews"></div>
+
+            <button type="button" class="btn_post_announcement" id="postAnnouncementBtn">Post Announcement</button>
+        </div>
+    </div>
+
+
+    <!-- Modal Overlay para sa pag-view ng Clicked Announcement Details -->
+<div class="modal-overlay" id="viewAnnouncementModal">
+    <div class="announcement_modal_card view_modal_card">
+        <button type="button" class="btn_close_view_modal" id="closeViewModalBtn">&times;</button>
+        <h2 id="viewTitle"></h2>
+        <p id="viewContent" class="view_content_text"></p>
+        <div id="viewImagesContainer" class="view_images_container"></div>
+    </div>
+</div>
+
+    <!-- Separate JS File para sa Firebase / Mock Data Operations -->
+    <script src="js_dashboardTable/announcements_submit.js"></script>
+    <script src="admin_login/login_as_admin.js"></script>
 </body>
 </html>
