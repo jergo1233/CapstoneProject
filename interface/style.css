@@ -206,12 +206,6 @@ body {
   margin-bottom: 6px;
 }
 
-.nav_icon1 {
-  display: none;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 6px;
-}
 
 .card_category {
   margin: 0;
@@ -236,6 +230,7 @@ body {
   -ms-overflow-style: none;
   width: 100%;
   padding-bottom: 40px;
+  
 }
 .card_desc::-webkit-scrollbar {
   display: none;

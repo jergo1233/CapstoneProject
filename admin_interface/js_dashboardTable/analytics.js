@@ -29,21 +29,26 @@ document.addEventListener('DOMContentLoaded', () => {
 function processAnalytics(data) {
   const selectedCat = document.getElementById('categoryFilter')?.value || 'All';
 
-  // Filter base sa napiling Category dropdown
+  // Filter base sa napiling Category dropdown (Gamit ang issueCategory key)
   const filteredData = (selectedCat === 'All') 
     ? data 
-    : data.filter(r => r.category === selectedCat);
+    : data.filter(r => (r.issueCategory || r.category) === selectedCat);
 
-  // 1. Update Counter Cards (Kasama ang Ongoing)
-  const received = filteredData.filter(r => r.status === 'Received').length;
-  const ongoing = filteredData.filter(r => r.status === 'Ongoing').length;
-  const resolved = filteredData.filter(r => r.status === 'Resolved').length;
+  // 1. Update Counter Cards (Gamit ang reportStatus key)
+  const received = filteredData.filter(r => (r.reportStatus || r.status) === 'Received').length;
+  const ongoing = filteredData.filter(r => (r.reportStatus || r.status) === 'Ongoing').length;
+  const resolved = filteredData.filter(r => (r.reportStatus || r.status) === 'Resolved').length;
   const total = filteredData.length;
 
-  document.getElementById('countReceived').innerText = received;
-  document.getElementById('countOngoing').innerText = ongoing;
-  document.getElementById('countResolved').innerText = resolved;
-  document.getElementById('countTotal').innerText = total;
+  const elReceived = document.getElementById('countReceived');
+  const elOngoing = document.getElementById('countOngoing');
+  const elResolved = document.getElementById('countResolved');
+  const elTotal = document.getElementById('countTotal');
+
+  if (elReceived) elReceived.innerText = received;
+  if (elOngoing) elOngoing.innerText = ongoing;
+  if (elResolved) elResolved.innerText = resolved;
+  if (elTotal) elTotal.innerText = total;
 
   // 2. Render Charts
   renderCategoryChart(data); 
@@ -52,10 +57,11 @@ function processAnalytics(data) {
 
 // Category Bar Chart Render Function
 function renderCategoryChart(data) {
-  const ctx = document.getElementById('categoryChart').getContext('2d');
+  const ctx = document.getElementById('categoryChart')?.getContext('2d');
+  if (!ctx) return;
 
   const counts = CATEGORIES_LIST.map(cat => 
-    data.filter(r => r.category === cat).length
+    data.filter(r => (r.issueCategory || r.category) === cat).length
   );
 
   if (categoryChartInstance) categoryChartInstance.destroy();
@@ -95,10 +101,14 @@ function renderCategoryChart(data) {
 
 // 25 Barangays Bar Chart Render Function
 function renderBarangayChart(data) {
-  const ctx = document.getElementById('barangayChart').getContext('2d');
+  const ctx = document.getElementById('barangayChart')?.getContext('2d');
+  if (!ctx) return;
 
   const barangayCounts = ODIONGAN_BARANGAYS.map(brgy => {
-    return data.filter(r => (r.location || '').toLowerCase().includes(brgy.toLowerCase())).length;
+    return data.filter(r => {
+      const loc = r.barangayArea || r.location || '';
+      return loc.toLowerCase().includes(brgy.toLowerCase());
+    }).length;
   });
 
   if (barangayChartInstance) barangayChartInstance.destroy();
@@ -110,22 +120,22 @@ function renderBarangayChart(data) {
       datasets: [{
         label: 'Total Reports',
         data: barangayCounts,
-        backgroundColor: '#1e293b',
+        backgroundColor: '#1f2631',
         barThickness: 12
       }]
     },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        precision: 0 // Iwas sa mga decimal numbers kapag kaunti pa ang data
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0 // Iwas sa decimal numbers
+          }
+        }
       }
     }
-  }
-}
   });
 }
 
@@ -135,8 +145,6 @@ function filterAnalyticsByCategory() {
   processAnalytics(dataToUse);
 }
 
-
-
 // Function para sa pag-export ng Summary at Graphs
 function exportAnalyticsReport() {
   const element = document.querySelector('.analytics_container') || document.querySelector('.main_content');
@@ -144,16 +152,15 @@ function exportAnalyticsReport() {
   const cleanCatName = selectedCat.replace(/[^a-zA-Z0-9]/g, '_');
 
   const opt = {
-    margin:       [8, 8, 8, 8], // Binawasan ng kaunti ang margin (8mm)
+    margin:       [8, 8, 8, 8],
     filename:     `Odiongan_Analytics_${cleanCatName}_Report.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { 
       scale: 2, 
       useCORS: true,
-      scrollY: 0 // Iniiwasan ang pagputol sanhi ng window scroll offset
+      scrollY: 0
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    // Awtomatikong idi-divide o i-fi-fit ang content para hindi maputol sa dulo
     pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } 
   };
 
@@ -174,10 +181,10 @@ function exportAnalyticsReport() {
     const firebaseReports = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id: doc.id,
-        category: data.category || '',
-        location: data.location || '',
-        status: data.status || 'Received'
+        reportID: doc.id,
+        issueCategory: data.issueCategory || '',
+        barangayArea: data.barangayArea || '',
+        reportStatus: data.reportStatus || 'Received'
       };
     });
     

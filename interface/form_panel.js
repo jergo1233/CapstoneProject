@@ -117,79 +117,65 @@ function removeSelectedImage(fileToRemove) {
 // ==========================================================================
 
 const mockReports = {
+
   rep_000001: {
-    id: "000001",
-    status: "Ongoing",
-    category: "Electrical and Streetlight",
-    location: "Brgy. Amatong Purok Pag-asa",
-    description:"Streetlight malfunction on Damage Road, Brgy. Amatong. Several streetlights have not been functioning properly, making the road very dark at night. Residents are requesting immediate inspection and repair to ensure the safety of pedestrians and motorists. The problem has been reported to the concerned personnel for proper assessment and action.",
-    timeline: {
-      submitted: "April 12, 2026 - 02:45 PM",
-      ongoing: "April 13, 2026 - 11:40 AM",
-      resolved: "April 13, 2026 - 02:15 PM",
-    },
-
-    attachments: [],
-  },
-
-  rep_000002: {
-    id: "000002",
-    status: "Received",
-    category: "Infrastructures",
-    location: "Brgy. Dapawan, Purok 3",
-    description: "A large pothole has developed along the roadside. The damaged portion of the road is becoming difficult to pass, especially for motorcycles and small vehicles. Residents are requesting immediate road inspection and repair before the damage becomes worse.",
-    timeline: {
+    reportID: "000001",
+    reportStatus: "Received",
+    issueCategory: "Infrastructures",
+    barangayArea: "Brgy. Dapawan, Purok 3",
+    issueDescription: "A large pothole has developed along the roadside. The damaged portion of the road is becoming difficult to pass, especially for motorcycles and small vehicles. Residents are requesting immediate road inspection and repair before the damage becomes worse.",
+    timestamp: {
       submitted: "April 14, 2026 - 08:10 AM",
       ongoing: "",
       resolved: "",
     },
 
-    attachments: [],
+    supportingImage: [],
   },
 
-  rep_000003: {
-    id: "000003",
-    status: "Resolved",
-    category: "Flooding",
-    location: "Brgy. Liwanag, Riverside",
-    description:"The drainage canal in the area was clogged with leaves, plastic materials, mud, and other debris. Heavy rainfall caused water to overflow onto the road and nearby residential areas. The drainage was cleaned and the affected area was restored.",
-    timeline: {
+  rep_000002: {
+    reportID: "000002",
+    reportStatus: "Resolved",
+    issueCategory: "Drainage and Flooding",
+    barangayArea: "Brgy. Liwanag, Riverside",
+    issueDescription:"The drainage canal in the area was clogged with leaves, plastic materials, mud, and other debris. Heavy rainfall caused water to overflow onto the road and nearby residential areas. The drainage was cleaned and the affected area was restored.",
+    timestamp: {
       submitted: "April 15, 2026 - 01:20 PM",
       ongoing: "April 16, 2026 - 09:00 AM",
       resolved: "April 17, 2026 - 04:35 PM",
     },
 
-    attachments: [],
+    supportingImage: [],
   },
 
-  rep_000004: {
-    id: "000004",
-    status: "Ongoing",
-    category: "Garbage Collection",
-    location: "Brgy. Tulay, Public Market",
-    description:"Garbage has accumulated around the public market due to delayed collection. The accumulated waste is producing unpleasant odors and attracting stray animals. Residents and vendors are requesting immediate garbage collection and proper disposal.",
-    timeline: {
+  rep_000003: {
+    reportID: "000003",
+    reportStatus: "Ongoing",
+    issueCategory: "Garbage Collection",
+    barangayArea: "Brgy. Tulay, Public Market",
+    issueDescription:"Garbage has accumulated around the public market due to delayed collection. The accumulated waste is producing unpleasant odors and attracting stray animals. Residents and vendors are requesting immediate garbage collection and proper disposal.",
+    timestamp: {
       submitted: "April 18, 2026 - 10:45 AM",
       ongoing: "April 19, 2026 - 08:30 AM",
       resolved: "",
     },
 
-    attachments: [],
+    supportingImage: [],
   },
 
-  rep_000005: {
-    id: "000005",
-    status: "Received",
-    category: "Water Management",
-    location: "Brgy. Rizal, Purok 2",
-    description:"Several households have reported low water pressure and intermittent water service. Residents are experiencing difficulty obtaining enough water for their daily activities. The concern has been received and is awaiting inspection by the appropriate office.",
-    timeline: {
-      submitted: "April 20, 2026 - 03:15 PM",
-      ongoing: "",
+  rep_000004: {
+    reportID: "000004",
+    reportStatus: "Ongoing",
+    issueCategory: "Drainage and Flooding",
+    barangayArea: "Brgy. Tulay, Public Market",
+    issueDescription: "The main drainage canal near the public market is heavily clogged with silt, plastics, and debris, causing water to overflow during heavy rainfall. Maintenance personnel are currently on-site clearing the drainage system to restore proper water flow.",
+    timestamp: {
+      submitted: "April 18, 2026 - 10:45 AM",
+      ongoing: "April 19, 2026 - 08:30 AM",
       resolved: "",
     },
 
-    attachments: [],
+    attachmesupportingImagents: [],
   },
 };
 // ==========================================================================
@@ -204,13 +190,13 @@ let currentActiveDocId = null;
 function getReportData(docId) {
   return (
     mockReports[docId] || {
-      id: docId.replace("rep_", ""),
-      status: "Received",
-      category: "General Concern",
-      location: "N/A",
-      description: "No description available.",
-      timeline: {},
-      attachments: [],
+      reportID: docId.replace("rep_", ""),
+      reportStatus: "Received",
+      issueCategory: "General Concern",
+      barangayArea: "N/A",
+      issueDescription: "No description available.",
+      timestamp: {},
+      supportingImage: [],
     }
   );
 }
@@ -218,8 +204,8 @@ function getReportData(docId) {
 // ==========================================================================
 // 6. CREATE STATUS CLASS
 // ==========================================================================
-function getStatusClass(status) {
-  const currentStatus = (status || "Received").toLowerCase();
+function getStatusClass(reportStatus) {
+  const currentStatus = (reportStatus || "Received").toLowerCase();
   if (currentStatus === "ongoing") {
     return "badge_ongoing";
   }
@@ -239,11 +225,11 @@ function getStatusClass(status) {
 
 function createReportCard(docId, report) {
   const submittedDate =
-    report.timeline && report.timeline.submitted
-      ? report.timeline.submitted.split(" - ")[0]
+    report.timestamp && report.timestamp.submitted
+      ? report.timestamp.submitted.split(" - ")[0]
       : "N/A";
-  const status = report.status || "Received";
-  const statusClass = getStatusClass(status);
+  const reportStatus = report.reportStatus || "Received";
+  const statusClass = getStatusClass(reportStatus);
   return `
     <div
       class="data_card"
@@ -254,7 +240,7 @@ function createReportCard(docId, report) {
           <!-- Category -->
           <div class="alignment_icon">
             <h4 class="card_category">
-              ${report.category || "N/A"}
+              ${report.issueCategory || "N/A"}
             </h4>
           </div>
 
@@ -263,17 +249,14 @@ function createReportCard(docId, report) {
           <div class="alignment_icon">
            <img src="assets/location.png" class="nav_icon" alt="Location">
             <p class="card_location">
-              ${report.location || "N/A"}
+              ${report.barangayArea || "N/A"}
             </p>
           </div>
 
 
           <!-- Description -->
           <div class="alignment_icon1">
-            <img src="assets/description (1).png" class="nav_icon1" alt="Description">
-            <p class="card_desc">
-              ${report.description || "N/A"}
-            </p>
+          <p class="card_desc">${report.issueDescription ? report.issueDescription.trim() : "N/A"}</p>
           </div>
 
         <!-- Date -->
@@ -286,7 +269,7 @@ function createReportCard(docId, report) {
         <div class="detail_status">
           <span
             class="badge ${statusClass}">
-            ${status}
+            ${reportStatus}
           </span>
           <button class="btn_text" type="button" onclick="openDetailsModal('${docId}', event)">
             View Details
@@ -343,14 +326,14 @@ function renderHistoryCards() {
 // 9. ATTACHMENTS DISPLAY
 // ==========================================================================
 
-function renderAttachments(container, attachments) {
+function renderAttachments(container, supportingImage) {
   container.innerHTML = "";
-  if (!Array.isArray(attachments) || attachments.length === 0) {
+  if (!Array.isArray(supportingImage) || supportingImage.length === 0) {
     container.textContent = "No attachments";
     return;
   }
 
-  attachments.forEach((attachment) => {
+  supportingImage.forEach((attachment) => {
     const item = document.createElement("div");
     item.className = "attachment_item";
 
@@ -388,55 +371,55 @@ function openDetailsModal(docId, event) {
   // REPORT ID
   // ----------------------------------------------------------
 
-  const reportId = document.getElementById("detail_report_id");
-  if (reportId) {
-    reportId.textContent = report.id || "N/A";
+  const reportIds = document.getElementById("detail_report_id");
+  if (reportIds) {
+    reportIds.textContent = report.reportID || "N/A";
   }
 
   // ----------------------------------------------------------
   // CATEGORY
   // ----------------------------------------------------------
-  const category = document.getElementById("detail_category");
-  if (category) {
-    category.textContent = report.category || "N/A";
+  const issueCategory = document.getElementById("detail_category");
+  if (issueCategory) {
+    issueCategory.textContent = report.issueCategory || "N/A";
   }
 
   // ----------------------------------------------------------
   // LOCATION
   // ----------------------------------------------------------
-  const location = document.getElementById("detail_location");
-  if (location) {
-    location.textContent = report.location || "N/A";
+  const barangayArea = document.getElementById("detail_location");
+  if (barangayArea) {
+    barangayArea.textContent = report.barangayArea || "N/A";
   }
   // ----------------------------------------------------------
   // DESCRIPTION
   // ----------------------------------------------------------
-  const description = document.getElementById("detail_description");
+  const issueDescription = document.getElementById("detail_description");
 
-  if (description) {
-    description.textContent = report.description || "N/A";
+  if (issueDescription) {
+    issueDescription.textContent = report.issueDescription || "N/A";
   }
   // ----------------------------------------------------------
   // EDIT DESCRIPTION
   // ----------------------------------------------------------
   const descriptionInput = document.getElementById("edit_description_input");
   if (descriptionInput) {
-    descriptionInput.value = report.description || "";
+    descriptionInput.value = report.issueDescription || "";
   }
   // ----------------------------------------------------------
   // STATUS
   // ----------------------------------------------------------
-  updateStatusBadgeUI(report.status);
+  updateStatusBadgeUI(report.reportStatus);
   // ----------------------------------------------------------
   // TIMELINE
   // ----------------------------------------------------------
-  updateTimelineUI(report.status, report.timeline);
+  updateTimelineUI(report.reportStatus, report.timestamp);
   // ----------------------------------------------------------
   // ATTACHMENTS
   // ----------------------------------------------------------
   const attachmentContainer = document.getElementById("detail_attachments");
   if (attachmentContainer) {
-    renderAttachments(attachmentContainer, report.attachments);
+    renderAttachments(attachmentContainer, report.supportingImage);
   }
   // ----------------------------------------------------------
   // RESET EDIT MODE
@@ -456,10 +439,10 @@ function openDetailsModal(docId, event) {
 // ==========================================================================
 // 11. STATUS BADGE
 // ==========================================================================
-function updateStatusBadgeUI(status) {
+function updateStatusBadgeUI(reportStatus) {
   const badge = document.getElementById("detail_status");
   if (!badge) return;
-  const currentStatus = status || "Received";
+  const currentStatus = reportStatus || "Received";
   badge.textContent = currentStatus;
   badge.classList.remove("badge_received", "badge_ongoing", "badge_resolved");
   badge.classList.add(getStatusClass(currentStatus));
@@ -468,10 +451,10 @@ function updateStatusBadgeUI(status) {
 // ==========================================================================
 // 12. TIMELINE
 // ==========================================================================
-function updateTimelineUI(status, timelineData = {}) {
+function updateTimelineUI(reportStatus, timelineData = {}) {
   const timelineItems = document.querySelectorAll(".timeline_item");
   let currentStep = 1;
-  const currentStatus = (status || "Received").toLowerCase();
+  const currentStatus = (reportStatus || "Received").toLowerCase();
   if (currentStatus === "ongoing") {
     currentStep = 2;
   } else if (currentStatus === "resolved") {
@@ -577,17 +560,17 @@ function toggleEditDescription(isEditing) {
 
 function saveDescription() {
   const input = document.getElementById("edit_description_input");
-  const description = document.getElementById("detail_description");
+  const issueDescription = document.getElementById("detail_description");
 
-  if (!input || !description) {
+  if (!input || !issueDescription) {
     return;
   }
   const updatedDescription = input.value;
  // UPDATE MODAL// ----------------------------------------------------------
-  description.textContent = updatedDescription;
+  issueDescription.textContent = updatedDescription;
  // UPDATE MOCK DATA
  if (currentActiveDocId && mockReports[currentActiveDocId]) {
-    mockReports[currentActiveDocId].description = updatedDescription;
+    mockReports[currentActiveDocId].issueDescription = updatedDescription;
   }
   // ----------------------------------------------------------
   // UPDATE HISTORY CARD
@@ -619,7 +602,7 @@ function saveDescription() {
   await updateDoc(
     doc(db, "reports", currentActiveDocId),
     {
-      description: updatedDescription
+      issueDescription: updatedDescription
     }
   );
   */

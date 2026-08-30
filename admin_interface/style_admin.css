@@ -74,7 +74,7 @@ body {
   box-sizing: border-box;
   position: fixed;
   left: 0;
-  top: 86px;
+  top: 75px;
   bottom: 0;
   border-right: 1px solid #d7d7d7;
   padding: 10px;
@@ -137,7 +137,7 @@ para sa reports table */
   border-radius: 12px;
   color: #1e293b;
   position: relative;
-  left: 20%;
+  left: 19%;
   margin-top: 4%;
   width: 81%;
 }
@@ -197,6 +197,8 @@ para sa reports table */
   text-align: left;
   font-size: 14px;
   table-layout: fixed; /* Pinapanatili ang eksaktong lapad ng mga kolum */
+  
+  border: 1px solid #e2e8f0; /* Added border color */
 }
 
 .pro-table th {
@@ -238,19 +240,19 @@ para sa reports table */
 .status-received {
   background-color: #fff7ed;
   color: #c2410c; /* Orange */
-  border: 1px solid #ffedd5;
+  border: 1px solid #ee5a20;
 }
 
 .status-ongoing {
   background-color: #eff6ff;
   color: #1d4ed8; /* Blue */
-  border: 1px solid #dbeafe;
+  border: 1px solid #2678e2;
 }
 
 .status-resolved {
   background-color: #f0fdf4;
   color: #15803d; /* Green */
-  border: 1px solid #dcfce7;
+  border: 1px solid #13c213;
 }
 
 .no-results {
@@ -494,18 +496,18 @@ font-size: 1.1rem;
 .status_select.card-status-received {
   background-color: #fff7ed;
   color: #c2410c; /* Orange */
-  border: 1px solid #fed7aa;
+  border: 1px solid #ff6c32;
 }
 .status_select.card-status-ongoing {
   background-color: #eff6ff;
   color: #1d4ed8; /* Blue */
-  border: 1px solid #dbeafe;
+  border: 1px solid #438cec;
 }
 
 .status_select.card-status-resolved {
   background-color: #f0fdf4;
   color: #15803d; /* Green */
-  border: 1px solid #dcfce7;
+  border: 1px solid #21b921;
 }
 
 /* Photo Gallery Grid */
@@ -542,25 +544,41 @@ font-size: 1.1rem;
 }
 
 .btn_delete {
-  background-color: #fee2e2;
+  background: rgba(254, 226, 226, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(240, 8, 8, 0.37);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.12);
   color: #dc2626;
-  border: none;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn_delete:hover {
+  background: rgba(254, 226, 226, 0.7);
+  box-shadow: 0 10px 24px rgba(82, 21, 21, 0.200);
 }
 
 .btn_update {
-  background-color: #dbeafe;
+  background: rgba(219, 234, 254, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(79, 128, 219, 0.61);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
   color: #2563eb;
-  border: none;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn_update:hover{
+  background: rgba(219, 234, 254, 0.45);
+  box-shadow: 0 10px 24px rgba(26, 45, 97, 0.200);
 }
 #reportsListContainer {
   display: flex;
