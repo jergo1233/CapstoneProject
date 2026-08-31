@@ -313,9 +313,10 @@ para sa reports table */
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
   margin-bottom: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #e2e8f0;
@@ -328,12 +329,16 @@ para sa reports table */
 }
 
 .modal-close {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #64748b;
-  line-height: 1;
+  background: transparent !important;
+  border: none !important;
+  font-size: 22px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  color: #64748b !important;
+  line-height: 1 !important;
+  padding: 4px 8px !important;
+  margin-left: auto !important; /* Itutulak ang button sa pinakadulo sa kanan */
+  transition: color 0.2s ease;
 }
 
 .modal-close:hover {
@@ -1145,4 +1150,49 @@ font-size: 1.1rem;
     transform: scale(1.08);
     color: #ff7424;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+/* View Map Button katabi ng Status */
+.btn_view_map {
+  background-color: #2564ebd3;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn_view_map:hover {
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+#mapModal .modal-body {
+  width: 100% !important;
+  height: calc(100% - 50px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#mapModal #mapContainer {
+  width: 100% !important;
+  flex-grow: 1 !important;    
+  min-height: 300px !important;
+  border-radius: 8px !important;
+  position: relative !important;
+}
+/* Palakihin ang Taas ng Map Container */
+#mapContainer { 
+  width: 100% !important;
+  height: 350px;
+   width: 100%;
+    border-radius: 8px;
+     border: 1px solid #cbd5e1;
+}
+
+.pin{
+  width: 20px;
 }

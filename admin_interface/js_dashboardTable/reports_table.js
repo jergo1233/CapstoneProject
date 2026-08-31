@@ -1,7 +1,7 @@
 // Global memory store for reports
 let currentReportsList = [];
 
-// Mock Data
+// Mock Data na may eksaktong Coordinates ng bawat Barangay sa Odiongan, Romblon
 const reportsData = [
   {
     reportID: "REP-001",
@@ -11,7 +11,9 @@ const reportsData = [
     issueDescription: "A large pothole has developed along the roadside. The damaged portion of the road is becoming difficult to pass, especially for motorcycles and small vehicles. Residents are requesting immediate road inspection and repair before the damage becomes worse.",
     timestamp: "April 14, 2026 - 08:10 AM",
     reportStatus: "Ongoing",
-    supportingImage: []
+    supportingImage: [],
+    latitude: 12.4018,
+    longitude: 121.9920
   },
   {
     reportID: "REP-002",
@@ -21,17 +23,21 @@ const reportsData = [
     issueDescription: "May malaking tumatagas na tubo ng tubig sa harap ng Purok 2, umaapaw na ang tubig sa kalsada.",
     timestamp: "April 15, 2026 - 01:20 PM",
     reportStatus: "Received",
-    supportingImage: []
+    supportingImage: [],
+    latitude: 12.3740,
+    longitude: 121.9931
   },
   {
     reportID: "REP-003",
     fullName: "Emilio Aguinaldo",
-    issueCategory: "Road Obstruction",
+    issueCategory: "Road Hazard",
     barangayArea: "Brgy. Batiano, Zone 5, Highway Boundary",
     issueDescription: "May mga nakatambak na construction materials sa gitna ng daanan na humaharang sa mga sasakyan.",
     timestamp: "April 18, 2026 - 10:45 AM",
     reportStatus: "Ongoing",
-    supportingImage: []
+    supportingImage: [],
+    latitude: 12.4200,
+    longitude: 121.9975
   },
   {
     reportID: "REP-004",
@@ -41,7 +47,9 @@ const reportsData = [
     issueDescription: "The main drainage canal near the public market is heavily clogged with silt, plastics, and debris, causing water to overflow during heavy rainfall. Maintenance personnel are currently on-site clearing the drainage system to restore proper water flow.",
     timestamp: "April 18, 2026 - 10:45 AM",
     reportStatus: "Ongoing",
-    supportingImage: []
+    supportingImage: [],
+    latitude: 12.3891,
+    longitude: 121.9854
   }
 ];
 
@@ -73,6 +81,53 @@ function getFormattedTimestamp() {
     hour12: true 
   };
   return now.toLocaleString('en-US', options).replace(' at', ' -');
+}
+
+// Variable para sa Leaflet Map Instance
+let leafletMap = null;
+let leafletMarker = null;
+
+// Function para buksan ang Map Modal at i-center ang pin sa coordinates
+function openMapModal(lat, lng, title, location) {
+  const modal = document.getElementById('mapModal');
+  if (!modal) return;
+
+  document.getElementById('mapModalTitle').innerText = `Location Map: ${title}`;
+  document.getElementById('mapCoordinatesText').innerText = `Coordinates: Lat ${lat}, Lng ${lng} (${location})`;
+  
+  modal.classList.add('active');
+
+  setTimeout(() => {
+    if (!leafletMap) {
+      leafletMap = L.map('mapContainer').setView([lat, lng], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(leafletMap);
+    } else {
+      leafletMap.setView([lat, lng], 16);
+    }
+
+    if (leafletMarker) {
+      leafletMap.removeLayer(leafletMarker);
+    }
+
+    leafletMarker = L.marker([lat, lng]).addTo(leafletMap)
+      .bindPopup(`<b>${title}</b><br>${location}`)
+      .openPopup();
+
+    leafletMap.invalidateSize();
+  }, 300);
+}
+function closeMapModal(event) {
+  if (event && event.target.id === 'mapModal') {
+    document.getElementById('mapModal').classList.remove('active');
+  }
+}
+
+function closeMapModalDirect() {
+  const modal = document.getElementById('mapModal');
+  if (modal) modal.classList.remove('active');
 }
 
 // Main function to render UI
@@ -142,17 +197,23 @@ function renderReports(data) {
       card.innerHTML = `
         <div class="card_header">
           <div class="resident_name">${report.fullName}</div>
-          <select id="status-select-${report.reportID}" class="status_select ${statusColorClass}" onchange="handleStatusColorChange(this)">
-            <option value="Received" ${report.reportStatus === 'Received' ? 'selected' : ''}>Received</option>
-            <option value="Ongoing" ${report.reportStatus === 'Ongoing' ? 'selected' : ''}>Ongoing</option>
-            <option value="Resolved" ${report.reportStatus === 'Resolved' ? 'selected' : ''}>Resolved</option>
-          </select>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn_view_map" onclick="openMapModal(${report.latitude}, ${report.longitude}, '${report.reportID} - ${report.issueCategory}', '${report.barangayArea}')">
+              <img src="assets_admin/location.png" alt="pin" class="pin"> View Map
+            </button>
+            <select id="status-select-${report.reportID}" class="status_select ${statusColorClass}" onchange="handleStatusColorChange(this)">
+              <option value="Received" ${report.reportStatus === 'Received' ? 'selected' : ''}>Received</option>
+              <option value="Ongoing" ${report.reportStatus === 'Ongoing' ? 'selected' : ''}>Ongoing</option>
+              <option value="Resolved" ${report.reportStatus === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </div>
         </div>
 
         <div class="report_details">
           <p><strong>Report ID:</strong> ${report.reportID}</p>
           <p><strong>Category:</strong> ${report.issueCategory}</p>
           <p><strong>Location:</strong> ${report.barangayArea}</p>
+          <p><strong>Coordinates:</strong> Lat: ${report.latitude}, Lng: ${report.longitude}</p>
           <p><strong>Description:</strong></p>
           <p class="desc_report_management">${report.issueDescription}</p>
         </div>
@@ -212,13 +273,13 @@ function updateReportStatus(id) {
 
   if (report) {
     report.reportStatus = newStatus;
-    report.timestamp = getFormattedTimestamp(); // Naba-bago rin ang timestamp kapag na-update na ito ni admin
+    report.timestamp = getFormattedTimestamp();
     alert(`Report status ${id} has been successfully updated to "${newStatus}".`);
     filterReports();
   }
 }
 
-// Modal Control Functions (for Dashboard Table)
+// Modal Control Functions (para sa Table Description Popup)
 function openModal(id) {
   const report = currentReportsList.find(item => item.reportID === id);
   if (!report) return;
@@ -226,21 +287,25 @@ function openModal(id) {
   const modal = document.getElementById('descModal');
   const imagesGrid = document.getElementById('modalImagesGrid');
 
+  if (!modal) return;
+
   document.getElementById('modalReportId').innerText = `Report Details - ${report.reportID}`;
   document.getElementById('modalDescription').innerText = report.issueDescription;
 
-  imagesGrid.innerHTML = '';
-  if (report.supportingImage && report.supportingImage.length > 0) {
-    report.supportingImage.forEach(imgUrl => {
-      const img = document.createElement('img');
-      img.src = imgUrl;
-      img.alt = `Report Image ${report.reportID}`;
-      img.className = 'modal-img-thumb';
-      img.onclick = () => window.open(imgUrl, '_blank');
-      imagesGrid.appendChild(img);
-    });
-  } else {
-    imagesGrid.innerHTML = '<p class="no-images-text">No images attached to this report.</p>';
+  if (imagesGrid) {
+    imagesGrid.innerHTML = '';
+    if (report.supportingImage && report.supportingImage.length > 0) {
+      report.supportingImage.forEach(imgUrl => {
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        img.alt = `Report Image ${report.reportID}`;
+        img.className = 'modal-img-thumb';
+        img.onclick = () => window.open(imgUrl, '_blank');
+        imagesGrid.appendChild(img);
+      });
+    } else {
+      imagesGrid.innerHTML = '<p class="no-images-text">No images attached to this report.</p>';
+    }
   }
 
   modal.classList.add('active');
@@ -253,12 +318,19 @@ function closeModal(event) {
 }
 
 function closeModalDirect() {
-  document.getElementById('descModal').classList.remove('active');
+  const modal = document.getElementById('descModal');
+  if (modal) modal.classList.remove('active');
 }
 
 // Initial Load on page DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   renderReports(reportsData);
+
+  // Idagdag ang click event listener para sa mapModal overlay
+  const mapModal = document.getElementById('mapModal');
+  if (mapModal) {
+    mapModal.addEventListener('click', closeMapModal);
+  }
 });
 
 /* 

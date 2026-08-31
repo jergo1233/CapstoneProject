@@ -10,10 +10,9 @@ const ODIONGAN_BARANGAYS = [
 const CATEGORIES_LIST = [
   "Infrastructures", 
   "Waste Management", 
+  "Road Hazard",
   "Drainage and Flooding", 
-  "Public Facilities", 
-  "Electrical and Streetlight", 
-  "Road Obstruction"
+  "Public Facilities"
 ];
 
 let categoryChartInstance = null;
