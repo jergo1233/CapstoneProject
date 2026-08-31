@@ -6,6 +6,7 @@
         <title>Municipal Gov - Track Report</title>
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="desktop.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     </head>
     <body>
         <div class="app_container">
@@ -86,7 +87,7 @@
                         </div>
                         <div class="form_group">
                             <label for="location" class="label">Location</label>
-                            <input list="barangay" id="location" class="form_control" name="location" placeholder="Barangay/Present Location" autocomplete="address-level3" required>
+                            <input list="barangay" id="location" class="form_control" name="location" placeholder="Barangay" autocomplete="address-level3" required>
                             <datalist id = "barangay">
                             <option value="Amatong">Amatong</option>
                             <option value="Anahao">Anahao</option>
@@ -115,6 +116,17 @@
                             <option value="Tulay">Tulay</option>
                             </datalist>
                         </div>
+
+                            <!-- IDAGDAG ITO: Map Container at Hidden Coordinates Input -->
+                        <div class="form_group">
+                                <label class="label">Pin Location on Map</label>
+                                <div id="map" style="height: 220px; width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; z-index: 1;"></div>
+                                <input type="hidden" id="latitude" name="latitude">
+                                <input type="hidden" id="longitude" name="longitude">
+                                <input type="hidden" id="location_name" name="location_name">
+                        </div>
+
+
                         <div class="form_group">
                             <label for="description" class="label">Description</label>
                             <textarea
@@ -321,5 +333,7 @@
         navigator.serviceWorker.register('./sw.js');
       }
         </script>
+        
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     </body>
 </html>

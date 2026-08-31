@@ -4,19 +4,16 @@
 
 function toggleFormView(showForm) {
   if (window.innerWidth <= 768) {
-    // Existing mobile behavior
-    document.getElementById("history_panel").style.display = showForm
-      ? "none"
-      : "block";
+    document.getElementById("history_panel").style.display = showForm ? "none" : "block";
+    document.getElementById("form_panel").style.display = showForm ? "block" : "none";
+    document.getElementById("app_navigation").style.display = showForm ? "none" : "flex";
 
-    document.getElementById("form_panel").style.display = showForm
-      ? "block"
-      : "none";
-
-    document.getElementById("app_navigation").style.display = showForm
-      ? "none"
-      : "flex";
-
+    if (showForm) {
+      setTimeout(() => {
+        initMap();
+        if (map) map.invalidateSize();
+      }, 300);
+    }
     return;
   }
 
@@ -33,6 +30,13 @@ function toggleFormView(showForm) {
       form.classList.add("show");
       overlay.classList.add("show");
     });
+
+    // Load at Render ng Mapa kapag lumabas ang Modal Overlay
+    setTimeout(() => {
+      initMap();
+      if (map) map.invalidateSize();
+    }, 350);
+
   } else {
     form.classList.remove("show");
     overlay.classList.remove("show");
@@ -613,4 +617,249 @@ function saveDescription() {
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", function () {
   renderHistoryCards();
+
+  // Automatic Pin kapag pumili ng Barangay ang User
+  const locationInput = document.getElementById("location");
+  if (locationInput) {
+    locationInput.addEventListener("change", function () {
+      const selectedBarangay = this.value.trim();
+      if (barangayCoordinates[selectedBarangay]) {
+        const coords = barangayCoordinates[selectedBarangay];
+        if (map) {
+          map.setView(coords, 16);
+          setMapMarker(coords[0], coords[1]);
+        }
+      }
+    });
+  }
+});
+// ==========================================================================
+// FORM PANEL & REAL-TIME GEOLOCATION (PURE GEOGRAPHIC MAP SEARCH)
+// ==========================================================================
+
+let map = null;
+let marker = null;
+
+// Open/Close Modal Form Overlay
+function toggleFormView(showForm) {
+  const form = document.getElementById("form_panel");
+  const overlay = document.getElementById("form_overlay");
+
+  if (!form || !overlay) return;
+
+  if (showForm) {
+    overlay.style.display = "block";
+    form.style.display = "block";
+
+    requestAnimationFrame(() => {
+      form.classList.add("show");
+      overlay.classList.add("show");
+    });
+
+    // Render Map kapag lumabas ang modal
+    setTimeout(() => {
+      initMap();
+      if (map) map.invalidateSize();
+    }, 350);
+
+  } else {
+    form.classList.remove("show");
+    overlay.classList.remove("show");
+
+    setTimeout(() => {
+      form.style.display = "none";
+      overlay.style.display = "none";
+    }, 300);
+  }
+}
+
+// Initialize Leaflet Map (Centering sa Odiongan, Romblon)
+function initMap() {
+  if (map !== null) return;
+
+  // Default Center: Odiongan Proper
+  const defaultCoords = [12.3980, 121.9820]; 
+
+  map = L.map('map').setView(defaultCoords, 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  map.on('click', function(e) {
+    setMapMarker(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+// Create & Move Pin Marker
+function setMapMarker(lat, lng) {
+  if (marker) {
+    marker.setLatLng([lat, lng]);
+  } else {
+    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+    // Kapag inilipat o in-drag ang pin
+    marker.on('dragend', function(e) {
+      const pos = marker.getLatLng();
+      updateCoordInputs(pos.lat, pos.lng);
+      updateLocationLabelFromMap(pos.lat, pos.lng);
+    });
+  }
+
+  updateCoordInputs(lat, lng);
+  updateLocationLabelFromMap(lat, lng);
+}
+
+function updateCoordInputs(lat, lng) {
+  const latInput = document.getElementById('latitude');
+  const lngInput = document.getElementById('longitude');
+  if (latInput && lngInput) {
+    latInput.value = lat;
+    lngInput.value = lng;
+  }
+}
+
+// Reverse Geocoding: Kukuha ng totoong lugar/building name at idudurugtong sa location input
+function updateLocationLabelFromMap(lat, lng) {
+  if (!marker) return;
+
+  const locationInput = document.getElementById("location");
+  const hiddenLocationNameInput = document.getElementById("location_name");
+
+  // Kukunin ang kasalukuyang pumasok na Barangay input ni user (kung mayroon)
+  let userBarangay = locationInput ? locationInput.value.trim() : "";
+
+  // Linisin ang lumang idinugtong na detalye kung nag-re-drag si user para manatili lang ang base input
+  if (userBarangay.includes(",")) {
+    userBarangay = userBarangay.split(",")[0].trim();
+  }
+
+  showTooltip(`📍 <b>Locating…</b>`);
+
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+    .then(response => response.json())
+    .then(data => {
+      let buildingOrSpot = "";
+      let detectedBarangay = "";
+
+      if (data && data.address) {
+        const addr = data.address;
+
+        // 1. Kuhanin ang Building Name, Amenity, Landmark, o Kalye
+        buildingOrSpot = 
+          addr.building || 
+          addr.amenity || 
+          addr.office || 
+          addr.leisure || 
+          addr.shop || 
+          addr.tourism || 
+          addr.road || 
+          addr.pedestrian || 
+          addr.suburb || 
+          "";
+
+        // 2. Kuhanin ang Barangay / Village mula sa mapa
+        detectedBarangay = addr.village || addr.quarter || addr.suburb || addr.neighbourhood || addr.town || "";
+      }
+
+      let finalLocationText = "";
+
+      // RULE LOGIC:
+      if (userBarangay !== "") {
+        // MAY INPUT SI USER:
+        // Huwag nang baguhin o palitan ang Barangay na pinili/in-input ni user.
+        // Idudugtong lang sa dulo ang nahanap na Building Name / Spot (kung may nahanap).
+        if (buildingOrSpot && buildingOrSpot.toLowerCase() !== userBarangay.toLowerCase()) {
+          finalLocationText = `${userBarangay}, ${buildingOrSpot}`;
+        } else {
+          finalLocationText = userBarangay;
+        }
+      } else {
+        // WALANG INPUT SI USER:
+        // Automatic na ilagay sa UNAHAN ang na-detect na Barangay mula sa pin coordinates.
+        if (buildingOrSpot) {
+          finalLocationText = detectedBarangay 
+            ? `${detectedBarangay}, ${buildingOrSpot}` 
+            : buildingOrSpot;
+        } else {
+          finalLocationText = detectedBarangay || "Selected Location";
+        }
+      }
+
+      // 1. Update sa visible input field
+      if (locationInput) {
+        locationInput.value = finalLocationText;
+      }
+
+      // 2. Update sa hidden input
+      if (hiddenLocationNameInput) {
+        hiddenLocationNameInput.value = finalLocationText;
+      }
+
+      // 3. Ipakita sa Pin Label
+      showTooltip(`📍 <b>${finalLocationText}</b>`);
+    })
+    .catch(() => {
+      const fallback = userBarangay || "Selected Location";
+      if (locationInput) locationInput.value = fallback;
+      showTooltip(`📍 <b>${fallback}</b>`);
+    });
+}
+
+function showTooltip(htmlContent) {
+  marker.bindTooltip(htmlContent, { 
+    permanent: true, 
+    direction: 'top',
+    className: 'custom-map-tooltip'
+  }).openTooltip();
+}
+
+// Direct True Map Geocoding Search (No Static Array)
+function geocodeBarangaySearch(locationName) {
+  if (!locationName) return;
+
+  // Ise-search ang mismong pangalan ng lugar sa totoong mapa ng Odiongan
+  const searchQuery = `${locationName}, Odiongan, Romblon, Philippines`;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        if (map) {
+          map.setView([lat, lon], 16);
+          setMapMarker(lat, lon);
+        }
+      } else {
+        // Fallback search para sa buong Odiongan
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=Odiongan, Romblon, Philippines`)
+          .then(res => res.json())
+          .then(fallbackData => {
+            if (fallbackData && fallbackData.length > 0) {
+              const lat = parseFloat(fallbackData[0].lat);
+              const lon = parseFloat(fallbackData[0].lon);
+              if (map) {
+                map.setView([lat, lon], 14);
+                setMapMarker(lat, lon);
+              }
+            }
+          });
+      }
+    })
+    .catch(err => console.error("True map search error:", err));
+}
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", function () {
+  const locationInput = document.getElementById("location");
+  
+  if (locationInput) {
+    // Kapag pumili ng Barangay sa dropdown o nag-change ang value
+    locationInput.addEventListener("change", function () {
+      const selectedLocation = this.value.trim();
+      geocodeBarangaySearch(selectedLocation);
+    });
+  }
 });
