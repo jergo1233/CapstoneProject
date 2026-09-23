@@ -156,7 +156,7 @@ async function start() {
         stop = await watchAdminReports((items, meta) => {
             if (current !== epoch) return;
             uid = meta.uid;
-            if (meta.state === 'signed-out') { clear(); window.location.replace('admin_login/admin.html'); return; }
+            if (meta.state === 'signed-out') { clear(); window.location.replace(/^\/admin(?:\/|$)/.test(window.location.pathname || '') ? '/admin' : 'admin_login/admin.html'); return; }
             if (meta.state !== 'ready') {
                 allowed = false; reports = []; clearPreviews(); table?.replaceChildren(); cards?.replaceChildren(); closeEditor(true);
                 adminNotice(message, meta.state === 'blocked' ? 'Admin access is unavailable.' : 'Checking admin access…', 'pending'); return;

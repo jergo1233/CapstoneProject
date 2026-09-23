@@ -75,7 +75,7 @@ async function connect() {
             if (current !== generation) return;
             if (meta.state !== 'ready') ++accessVersion;
             ready = meta.state === 'ready'; cached = Boolean(meta.fromCache); reports = ready ? items : [];
-            if (meta.state === 'signed-out') { clear(); window.location.replace('admin_login/admin.html'); return; }
+            if (meta.state === 'signed-out') { clear(); window.location.replace(/^\/admin(?:\/|$)/.test(window.location.pathname || '') ? '/admin' : 'admin_login/admin.html'); return; }
             render();
             if (!ready) adminNotice(node('analyticsFeedback'), 'Waiting for admin access verification…', 'pending');
             if (ready) node('retryAnalytics').hidden = true;

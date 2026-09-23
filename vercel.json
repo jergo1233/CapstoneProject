@@ -1,0 +1,53 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin_interface/admin_login/admin.html"
+    },
+    {
+      "source": "/admin/dashboard",
+      "destination": "/admin_interface/dashboard.html"
+    },
+    {
+      "source": "/admin/reports",
+      "destination": "/admin_interface/report_management.html"
+    },
+    {
+      "source": "/admin/announcements",
+      "destination": "/admin_interface/admin_announcement.html"
+    },
+    {
+      "source": "/admin/analytics",
+      "destination": "/admin_interface/analytics.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin/",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin/dashboard/",
+      "destination": "/admin/dashboard",
+      "permanent": false
+    },
+    {
+      "source": "/admin/reports/",
+      "destination": "/admin/reports",
+      "permanent": false
+    },
+    {
+      "source": "/admin/announcements/",
+      "destination": "/admin/announcements",
+      "permanent": false
+    },
+    {
+      "source": "/admin/analytics/",
+      "destination": "/admin/analytics",
+      "permanent": false
+    }
+  ]
+}

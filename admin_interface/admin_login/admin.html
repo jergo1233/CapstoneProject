@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <script>
+            if (/^\/admin(?:\/|$)/.test(location.pathname)) {
+                const base = document.createElement('base');
+                base.href = '/admin_interface/admin_login/';
+                document.head.append(base);
+            }
+        </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login As Admin</title>

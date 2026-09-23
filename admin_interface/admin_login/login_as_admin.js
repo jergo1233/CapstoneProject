@@ -1,12 +1,22 @@
 import { login, logout, hasRole, authMessage } from "../../firebase/auth.js";
 import { getServices } from "../../firebase/client.js";
 
-const isLoginPage = window.location.pathname.endsWith("/admin.html");
+const shortRoutes = /^\/admin(?:\/|$)/.test(window.location.pathname);
+const isLoginPage = Boolean(document.getElementById('admin_email'));
+const loginPath = shortRoutes ? '/admin' : 'admin_login/admin.html';
+if (shortRoutes) {
+    const routes = { 'dashboard.html': '/admin/dashboard', 'report_management.html': '/admin/reports',
+        'analytics.html': '/admin/analytics', 'admin_announcement.html': '/admin/announcements' };
+    document.querySelectorAll('a[href]').forEach(link => {
+        const route = routes[link.getAttribute('href')];
+        if (route) link.setAttribute('href', route);
+    });
+}
 window.handleLogout = async (event) => {
     event?.preventDefault();
     try {
         await logout();
-        window.location.replace("admin_login/admin.html");
+        window.location.replace(loginPath);
     } catch (error) { alert(authMessage(error)); }
 };
 if (isLoginPage) {
@@ -26,16 +36,16 @@ if (isLoginPage) {
         feedback.textContent = "";
         try {
             await login(document.getElementById("admin_email").value, password.value, "Admin");
-            window.location.replace("../dashboard.html");
+            window.location.replace(shortRoutes ? "/admin/dashboard" : "../dashboard.html");
         } catch (error) { feedback.textContent = authMessage(error); }
         finally { button.disabled = false; }
     });
 } else if (!document.body.hasAttribute("data-report-page")) {
     try {
         const { auth } = await getServices();
-        if (!await hasRole(auth.currentUser, "Admin")) window.location.replace("admin_login/admin.html");
+        if (!await hasRole(auth.currentUser, "Admin")) window.location.replace(loginPath);
     } catch (error) {
         alert(authMessage(error));
-        window.location.replace("admin_login/admin.html");
+        window.location.replace(loginPath);
     }
 }

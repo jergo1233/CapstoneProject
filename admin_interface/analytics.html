@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+        <script>
+            if (/^\/admin(?:\/|$)/.test(location.pathname)) {
+                const base = document.createElement('base');
+                base.href = '/admin_interface/';
+                document.head.append(base);
+            }
+        </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
