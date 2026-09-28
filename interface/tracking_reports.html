@@ -87,7 +87,10 @@
                         <div class="form_group">
                             <label for="report_photo" class="label">Attach photo (optional)</label>
                             <input id="report_photo" type="file" accept="image/jpeg,image/png,image/webp">
-                            <p>One JPEG, PNG or WebP, up to 5 MB. Visible only to you and authorized admins.</p>
+                            <button id="take_report_photo" type="button" class="btn_secondary">Take photo</button>
+                            <input id="report_camera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
+                            <img id="report_photo_preview" alt="Selected report photo preview" hidden>
+                            <p>One JPEG, PNG or WebP, up to 5 MB. Visible only to you and authorized admins. Your photo uploads only when you submit the report.</p>
                             <button id="remove_photo" type="button" class="btn_secondary">Remove selected photo</button>
                             <p id="photo_feedback" role="status"></p>
                         </div>

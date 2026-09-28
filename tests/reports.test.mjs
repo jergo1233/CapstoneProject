@@ -125,17 +125,19 @@ async function pageHarness() {
     const disabledPhoto=new Node();disabledPhoto.disabled=true;
     form.elements=[nodes.category,nodes.location,nodes.location_description,nodes.description,disabledPhoto];
     form.reportValidity=()=>true;
-    form.reset=()=>form.elements.forEach(node=>node.value='');
+    form.reset=()=>{ form.events.reset?.(); form.elements.forEach(node=>node.value=''); };
     const timeline=new Node();
     const document={getElementById:id=>nodes[id],createElement:()=>new Node(),querySelector:()=>timeline,activeElement:null};
     const window=new Node(), auth={currentUser:{uid:'a'}};
-    let onData,onError,resolve,reject,writes=0;
+    let onData,onError,resolve,reject,writes=0, submittedPhoto;
+    const revoked=[];
     const source=(await readFile(new URL('../interface/form_panel.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
     const deps={
         document,window,getServices:async()=>({auth}), googleMapsLink,
-        createReportPhotoViewer:()=>({set(){},clear(){}}), validateReportPhoto:()=>{},
+        createReportPhotoViewer:()=>({set(){},clear(){}}), validateReportPhoto:file=>{if(file.invalid) throw new Error('Invalid photo');},
+        URL:{createObjectURL:file=>'blob:'+file.name,revokeObjectURL:url=>revoked.push(url)},
         createReportMap:()=>({show(){},reset(){},setBusy(){},getPin:()=>null}),
-        createTextReport:()=>{writes++;return new Promise((yes,no)=>{resolve=yes;reject=no;});},
+        createTextReport:(_input,_pin,photo)=>{submittedPhoto=photo;writes++;return new Promise((yes,no)=>{resolve=yes;reject=no;});},
         watchOwnReports:async(data,error)=>{onData=data;onError=error;data([],{uid:'a',state:'loading'});return ()=>{};},
         REPORT_CATEGORIES,REPORT_BARANGAYS:['Dapawan'],
         reportDate:()=> 'date',reportError:error=>error.message,
@@ -143,7 +145,7 @@ async function pageHarness() {
     };
     const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
     await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
-    return {nodes,form,auth,timeline,window,disabledPhoto,
+    return {nodes,form,auth,timeline,window,disabledPhoto,revoked,photo:()=>submittedPhoto,
         data:(items,uid='a')=>onData(items,{uid,state:'ready',fromCache:false}),
         error:onError,resolve:()=>resolve({uid:'a',id:'saved'}),reject:()=>reject(new Error('Denied')),
         writeCount:()=>writes};
@@ -217,4 +219,27 @@ test('a rejected report never uploads a photo',async()=>{
     const saving=h.createTextReport(input,null,{type:'image/png',size:9});
     await new Promise(resolve=>setImmediate(resolve));
     h.reject(new Error('denied'));await assert.rejects(saving,/denied/);assert.equal(uploads,0);
+});
+
+test('camera and file selection preview locally, replace and remove safely, and upload only on submit', async () => {
+    const h = await pageHarness();
+    const first = {name:'camera.jpg'}, second = {name:'gallery.png'};
+    h.nodes.report_camera.files = [first]; h.nodes.report_camera.events.change();
+    assert.equal(h.nodes.report_photo_preview.src, 'blob:camera.jpg');
+    assert.equal(h.writeCount(), 0);
+    h.nodes.report_photo.files = [second]; h.nodes.report_photo.events.change();
+    assert.deepEqual(h.revoked, ['blob:camera.jpg']);
+    h.nodes.report_camera.files = [{name:'bad',invalid:true}]; h.nodes.report_camera.events.change();
+    assert.equal(h.nodes.report_photo_preview.src, 'blob:gallery.png');
+    const sending = h.form.events.submit({preventDefault(){}});
+    assert.equal(h.photo(), second);
+    h.resolve(); await sending;
+    assert.equal(h.nodes.report_photo_preview.hidden, true);
+    assert.deepEqual(h.revoked, ['blob:camera.jpg','blob:gallery.png']);
+    h.nodes.report_camera.files = [first]; h.nodes.report_camera.events.change();
+    h.nodes.remove_photo.events.click();
+    assert.equal(h.nodes.report_photo_preview.hidden, true);
+    h.nodes.report_camera.files = [first]; h.nodes.report_camera.events.change();
+    h.data([], 'other');
+    assert.equal(h.nodes.report_photo_preview.hidden, true);
 });

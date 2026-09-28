@@ -1891,3 +1891,7 @@ body {
 
 #homeReportsNote { margin: 8px 0 0; color: #52647b; font: .875rem/1.5 system-ui, sans-serif; }
 #homeReportsNote[hidden] { display: none; }
+
+#report_photo_preview { display: block; width: 100%; max-height: 320px; object-fit: contain; margin-top: 12px; border-radius: 12px; background: #eef2f7; }
+#report_photo_preview[hidden], #report_camera[hidden] { display: none; }
+#take_report_photo { margin-top: 10px; }

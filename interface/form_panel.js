@@ -21,15 +21,39 @@ const details = document.getElementById('details_panel');
 const photoViewer = createReportPhotoViewer(document.getElementById('detail_attachments'));
 const photoInput = document.getElementById('report_photo');
 const photoFeedback = document.getElementById('photo_feedback');
-photoInput.addEventListener('change', () => {
-    const file = photoInput.files?.[0];
+const cameraInput = document.getElementById('report_camera');
+const photoPreview = document.getElementById('report_photo_preview');
+let selectedPhoto = null, previewURL = null;
+function clearSelectedPhoto() {
+    if (previewURL) URL.revokeObjectURL(previewURL);
+    previewURL = null; selectedPhoto = null;
+    photoInput.value = ''; cameraInput.value = '';
+    photoPreview.removeAttribute('src'); photoPreview.hidden = true;
     photoFeedback.textContent = '';
-    if (!file) return;
-    try { validateReportPhoto(file); noticeTone(photoFeedback, 'success'); photoFeedback.textContent = 'Selected: ' + file.name; }
-    catch (error) { photoInput.value = ''; noticeTone(photoFeedback, 'error'); photoFeedback.textContent = error.message; }
+}
+for (const input of [photoInput, cameraInput]) {
+    input.addEventListener('change', () => {
+        const file = input.files?.[0];
+        if (!file || saving) return;
+        try {
+            validateReportPhoto(file);
+            const nextURL = URL.createObjectURL(file);
+            clearSelectedPhoto();
+            selectedPhoto = file; previewURL = nextURL;
+            photoPreview.src = previewURL; photoPreview.hidden = false;
+            noticeTone(photoFeedback, 'success');
+            photoFeedback.textContent = 'Selected: ' + file.name + '. Ready to upload when you submit.';
+        } catch (error) {
+            input.value = ''; noticeTone(photoFeedback, 'error');
+            photoFeedback.textContent = error.message + (selectedPhoto ? ' Your previous photo is still selected.' : '');
+        }
+    });
+}
+document.getElementById('take_report_photo').addEventListener('click', () => {
+    if (!saving) cameraInput.click();
 });
-document.getElementById('remove_photo').addEventListener('click', () => { photoInput.value = ''; photoFeedback.textContent = ''; });
-form.addEventListener('reset', () => { photoFeedback.textContent = ''; });
+document.getElementById('remove_photo').addEventListener('click', () => { if (!saving) clearSelectedPhoto(); });
+form.addEventListener('reset', clearSelectedPhoto);
 let reports = new Map();
 let selectedId = null;
 let linkedReportId = new URLSearchParams((window.location?.hash || '').slice(1)).get('report');
@@ -208,7 +232,7 @@ form.addEventListener('submit', async event => {
     feedback.textContent = 'Sending your report… Keep this page open until submission is confirmed.';
     const submissionUid = ownerUid;
     try {
-        const result = await createTextReport(input, pin, photoInput.files?.[0] || null);
+        const result = await createTextReport(input, pin, selectedPhoto);
         const { auth } = await getServices();
         if (auth.currentUser?.uid !== result.uid || ownerUid !== submissionUid) return;
         form.reset(); reportMap.reset();
