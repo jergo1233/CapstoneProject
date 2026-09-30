@@ -1,20 +1,33 @@
-// Session-only snapshots: survive navigation/refresh, not a new signed-in session.
+// Resident snapshots persist across restarts only after explicit device opt-in.
 // This is display data, never an authorization source or an offline write queue.
 const KEY = 'odiongan-resident-snapshot-v1';
+const DEVICE_KEY = 'odiongan-remember-resident';
 let owner = null;
+function rememberedUid() {
+    try { return localStorage.getItem(DEVICE_KEY); } catch { return null; }
+}
+function snapshotStorage() {
+    return rememberedUid() ? localStorage : sessionStorage;
+}
+export function configureOfflinePersistence(uid, remember = false) {
+    clearOfflinePrivate();
+    if (remember) localStorage.setItem(DEVICE_KEY, uid);
+    owner = uid;
+}
 function read() {
-    try { return JSON.parse(sessionStorage.getItem(KEY)) || {}; } catch { return {}; }
+    try { return JSON.parse(snapshotStorage().getItem(KEY)) || {}; } catch { return {}; }
 }
 function write(value) {
-    try { sessionStorage.setItem(KEY, JSON.stringify(value)); return true; } catch { return false; }
+    try { snapshotStorage().setItem(KEY, JSON.stringify(value)); return true; } catch { return false; }
 }
 export function clearOfflinePrivate() {
     owner = null;
     try { sessionStorage.removeItem(KEY); } catch { /* Storage may be disabled. */ }
+    try { localStorage.removeItem(KEY); localStorage.removeItem(DEVICE_KEY); } catch { /* Storage may be disabled. */ }
 }
 export function setOfflineOwner(uid) {
     const saved = read();
-    if (!uid || saved.uid !== uid) clearOfflinePrivate();
+    if (!uid || (saved.uid && saved.uid !== uid) || (rememberedUid() && rememberedUid() !== uid)) clearOfflinePrivate();
     owner = uid || null;
 }
 function encode(value) {

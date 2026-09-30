@@ -1,6 +1,6 @@
 import { getServices } from "../firebase/client.js";
 import { authMessage } from "../firebase/auth.js";
-import { createUserWithEmailAndPassword, deleteUser, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { createUserWithEmailAndPassword, deleteUser, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 // PASSWORD FIELD
@@ -54,6 +54,7 @@ document.getElementById("registerForm").addEventListener("submit", async (event)
     feedback.textContent = "Creating your account…";
     try {
         const { auth, db } = await getServices();
+        await setPersistence(auth, browserSessionPersistence);
         const { user } = await createUserWithEmailAndPassword(auth, document.getElementById("email").value.trim(), password.value);
         try {
             await setDoc(doc(db, "residents", user.uid), {

@@ -184,3 +184,40 @@ test('revoking admin role blocks subsequent reads and updates',async()=>{
     await expectStatus(await request('/reports/owned-report','GET',undefined,admin),403);
     await expectStatus(await update({reportStatus:'Resolved'}),403);
 });
+
+function eventWrite(id, data) {
+    return {update:{name:database+'/documents/notifications/'+id,fields:Object.fromEntries(Object.entries(data).map(([key,value])=>[key,field(value)]))},
+        currentDocument:{exists:false},updateTransforms:[{fieldPath:'createdAt',setToServerValue:'REQUEST_TIME'}]};
+}
+const newEvent={kind:'new-report',reportId:'notified-report',recipient:'admins',category:valid.issueCategory,barangay:valid.barangayArea};
+test('new-report event requires matching atomic report creation; admin-only reads',async()=>{
+    await expectStatus(await request('/admins/admin-a','PATCH',{fields:{role:field('Admin')}},'owner'),200);
+    await expectStatus(await request(':commit','POST',{writes:[eventWrite('notified-report',newEvent)]}),403);
+    const write={update:{name:database+'/documents/reports/notified-report',fields:Object.fromEntries(Object.entries(valid).map(([k,v])=>[k,field(v)]))},currentDocument:{exists:false},updateTransforms:['timestamp','updatedAt'].map(fieldPath=>({fieldPath,setToServerValue:'REQUEST_TIME'}))};
+    await expectStatus(await request(':commit','POST',{writes:[write,eventWrite('notified-report',newEvent)]}),200);
+    await expectStatus(await request('/notifications/notified-report','GET',undefined,admin),200);
+    await expectStatus(await request('/notifications/notified-report','GET',undefined,a),403);
+    await expectStatus(await request('/notifications/notified-report','GET',undefined,null),403);
+});
+test('report-update events must match a real admin change and are private to the resident',async()=>{
+    const event={kind:'report-update',reportId:'notified-report',recipient:'resident-a',category:valid.issueCategory,barangay:valid.barangayArea,reportStatus:'Ongoing',referredTo:{nullValue:null}};
+    const update={update:{name:database+'/documents/reports/notified-report',fields:{reportStatus:field('Ongoing'),referredTo:{nullValue:null}}},updateMask:{fieldPaths:['reportStatus','referredTo']},updateTransforms:[{fieldPath:'updatedAt',setToServerValue:'REQUEST_TIME'}]};
+    await expectStatus(await request(':commit','POST',{writes:[update,eventWrite('update-spoof',{...event,recipient:'resident-b'})]},admin),403);
+    await expectStatus(await request(':commit','POST',{writes:[update,eventWrite('update-owner',event)]},a),403);
+    await expectStatus(await request(':commit','POST',{writes:[update,eventWrite('update-owner',event)]},admin),200);
+    await expectStatus(await request('/notifications/update-owner','GET',undefined,a),200);
+    await expectStatus(await request('/notifications/update-owner','GET',undefined,b),403);
+    await expectStatus(await request(':commit','POST',{writes:[eventWrite('replay-update',event)]},admin),403);
+});
+test('notification queries are owner/kind scoped and read receipts cannot affect other accounts',async()=>{
+    const query={from:[{collectionId:'notifications'}],where:{compositeFilter:{op:'AND',filters:[['kind','report-update'],['recipient','resident-a']].map(([key,value])=>({fieldFilter:{field:{fieldPath:key},op:'EQUAL',value:field(value)}}))}}};
+    await expectStatus(await request(':runQuery','POST',{structuredQuery:query},a),200);
+    await expectStatus(await request(':runQuery','POST',{structuredQuery:query},b),403);
+    await expectStatus(await request(':runQuery','POST',{structuredQuery:{from:[{collectionId:'notifications'}],where:{fieldFilter:{field:{fieldPath:'kind'},op:'EQUAL',value:field('new-report')}}}},admin),200);
+    const receipt=uid=>({update:{name:database+'/documents/notificationUsers/'+uid+'/reads/update-owner',fields:{}},updateTransforms:[{fieldPath:'readAt',setToServerValue:'REQUEST_TIME'}]});
+    await expectStatus(await request(':commit','POST',{writes:[receipt('resident-a')]},a),200);
+    await expectStatus(await request(':commit','POST',{writes:[receipt('resident-a')]},b),403);
+    await expectStatus(await request(':commit','POST',{writes:[receipt('resident-b')]},b),403);
+    await expectStatus(await request('/notificationUsers/resident-a/reads/update-owner','GET',undefined,b),403);
+    await expectStatus(await request('/notifications/update-owner','PATCH',{fields:{recipient:field('resident-b')}},a),403);
+});

@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Municipal Gov - Admin</title>
     <link rel="stylesheet" href="style_admin.css">
+<link rel="stylesheet" href="../interface/notifications.css">
 </head>
 <body data-report-page>
 
@@ -55,68 +56,28 @@
     </div>
     </section>
 
-   <main class="table_of_reports_content">
-
-
-  <!-- Toolbar / Search Bar -->
-  <div class="table-toolbar">
-    <h1>Tables of Reports</h1>
-    <div class="search-box">
-      <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-      </svg>
-      <input type="text" id="residentSearchInput" class="search-input" placeholder="Search resident name...">
+<main class="main_content dashboard_summary">
+    <div class="summary_heading"><div><h1>Dashboard</h1><p>Municipal report overview</p></div>
+    <a class="summary_link" href="analytics.html">View full analytics →</a></div>
+    <p id="summaryFeedback" class="admin_notice" role="status">Checking admin access…</p>
+    <button id="summaryRetry" type="button" hidden>Retry loading</button>
+    <div id="summaryResults" hidden>
+      <a href="report_management.html" class="review_indicator"><span><strong id="awaitingReview">Awaiting review: 0</strong><span class="review_hint">Reports currently marked Received · Open Report Management</span></span><span aria-hidden="true">→</span></a>
+      <h2>All-time reports</h2><div id="summaryCounts" class="analytics_counts"></div>
+      <p class="summary_note">Counts represent submitted reports and their current status, not historical status changes.</p>
+      <section class="summary_chart"><h2>Submissions in the last 14 days</h2>
+        <p id="summaryTrendNote" class="summary_note"></p>
+        <div id="summaryTrend" class="summary_bars" aria-label="Daily report submission counts"></div>
+      </section>
+      <a class="summary_link" href="report_management.html">Open Report Management →</a>
     </div>
-  </div>
-
-  <p id="reportsFeedback" role="status"></p><button id="reportsRetry" type="button" hidden>Retry</button>
-  <!-- Main Table -->
-  <div class="table-container">
-    <table class="pro-table">
-      <thead>
-        <tr>
-          <th>Report ID</th>
-          <th>Resident Name</th>
-          <th>Category</th>
-          <th>Location</th>
-          <th>Description</th>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-
-      <tbody id="reportsTableBody">
-        <!-- Rendered via JavaScript -->
-      </tbody>
-    </table>
-  </div>
-
-
-
-<div id="reportEditor" class="modal-overlay" hidden>
-  <section class="floating-card" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
-    <div class="modal-header"><h2 id="editorTitle">Report details</h2><button id="closeEditor" type="button" class="modal-close" aria-label="Close report">×</button></div>
-    <div class="modal-body">
-      <div id="editorDetails"></div>
-      <div id="editorPhoto"></div>
-      <form id="processingForm">
-        <label>Status <select id="processingStatus" required></select></label>
-        <label>Priority <select id="processingPriority"></select></label>
-        <label>Routing level <select id="processingRouting"></select></label>
-        <label>Referral destination (optional)<input id="processingReferral" maxlength="200" placeholder="Office, barangay or agency"></label>
-        <p>Referral details record manual coordination; saving does not contact or dispatch another office.</p>
-        <button type="submit" class="btn_update">Save changes</button>
-        <button id="reloadProcessing" type="button">Reload saved values</button>
-        <p id="processingFeedback" role="status" aria-live="polite"></p>
-      </form>
-    </div>
-  </section>
-</div>
 </main>
 
 
 
-<script type="module" src="js_dashboardTable/reports_table.js"></script>
+<script type="module" src="js_dashboardTable/dashboard-summary.js"></script>
 <script type="module" src="admin_login/login_as_admin.js"></script>
+<script type="module" src="admin-tooltips.js"></script>
+<script type="module" src="../firebase/notifications-ui.js"></script>
 </body>
 </html>

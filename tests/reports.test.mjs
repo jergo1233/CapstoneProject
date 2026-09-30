@@ -36,14 +36,14 @@ test('orders newest reports first without mutating snapshot results', () => {
 async function serviceHarness({ upload = async()=>{} } = {}) {
     const auth = { currentUser: {uid:'a',isAnonymous:false} };
     let authCallback, writeResolve, writeReject;
-    const listeners = [], writes = [];
+    const listeners = [], writes = [], notifications = [];
     const source = (await readFile(new URL('../firebase/reports.js', import.meta.url),'utf8')).replace(/^import .*;\n/gm,'').replace(/export /g,'');
     const deps = {
         readOffline:()=>null, saveOffline:()=>true, removeOffline:()=>{},
         getServices: async()=>({auth,db:{}}), validateReportPhoto:()=>{}, uploadReportPhoto:upload,
         onAuthStateChanged: (_,cb)=>{authCallback=cb;cb(auth.currentUser);return ()=>{};},
         collection: (_,name)=>name, doc: ()=>({id:'new-report'}),
-        setDoc: (ref,data)=>{writes.push({ref,data});return new Promise((resolve,reject)=>{writeResolve=resolve;writeReject=reject;});},
+        writeBatch: ()=>({set:(ref,data)=>{(data.kind ? notifications : writes).push({ref,data});},commit:()=>new Promise((resolve,reject)=>{writeResolve=resolve;writeReject=reject;})}),
         query: (collection,filter)=>({collection,filter}), where: (...args)=>args,
         onSnapshot: (query,options,next,error)=>{const entry={query,next,error,stopped:false};listeners.push(entry);return ()=>entry.stopped=true;},
         serverTimestamp: ()=>({server:true}), buildTextReport, sortReports, validPin,
@@ -51,7 +51,7 @@ async function serviceHarness({ upload = async()=>{} } = {}) {
         navigator:{onLine:true},
     };
     const service = new Function(...Object.keys(deps),source+'; return {createTextReport,watchOwnReports};')(...Object.values(deps));
-    return {...service,auth,listeners,writes,deps,resolve:()=>writeResolve(),reject:error=>writeReject(error),
+    return {...service,auth,listeners,writes,notifications,deps,resolve:()=>writeResolve(),reject:error=>writeReject(error),
         change:user=>{auth.currentUser=user;authCallback(user);}};
 }
 const snapshot = (id, pending=false)=>({docs:[{id,data:()=>({timestamp:null}),metadata:{hasPendingWrites:pending}}],metadata:{fromCache:false}});
@@ -242,4 +242,14 @@ test('camera and file selection preview locally, replace and remove safely, and 
     h.nodes.report_camera.files = [first]; h.nodes.report_camera.events.change();
     h.data([], 'other');
     assert.equal(h.nodes.report_photo_preview.hidden, true);
+});
+
+test('report creation batches a matching admin notification with the report', async () => {
+    const h = await serviceHarness();
+    const pending = h.createTextReport(input); await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(h.writes.length,1); assert.equal(h.notifications.length,1);
+    assert.equal(h.notifications[0].data.reportId,h.writes[0].ref.id);
+    assert.equal(h.notifications[0].data.kind,'new-report');
+    assert.equal(h.notifications[0].data.recipient,'admins');
+    h.resolve(); await pending;
 });

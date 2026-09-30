@@ -10,7 +10,8 @@
         <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <link rel="manifest" href="manifest.webmanifest">
         <meta name="theme-color" content="#1f3d5b">
-    </head>
+    <link rel="stylesheet" href="../interface/notifications.css">
+</head>
     <body>
         <style>.app_container[hidden], #sessionStatus[hidden] { display: none !important; }</style>
         <div id="sessionStatus" role="status" aria-live="polite" hidden>
@@ -199,5 +200,6 @@
         <script src="offline.js" defer></script>
 
     <script type="module" src="../firebase/resident-session.js"></script>
+<script type="module" src="../firebase/notifications-ui.js"></script>
 </body>
 </html>

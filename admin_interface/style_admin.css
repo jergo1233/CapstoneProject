@@ -1377,3 +1377,68 @@ font-size: 1.1rem;
 @media (max-width: 900px) {
   .admin_announcements_page .announcement_card { grid-template-columns: minmax(0, 1fr); padding: 18px; }
 }
+
+/* Compact dashboard overview; full filtering/export stays in Analytics. */
+.dashboard_summary { font-family: system-ui, sans-serif; padding-bottom: 32px; }
+.summary_heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.dashboard_summary h1, .dashboard_summary h2 { color: #173858; }
+.dashboard_summary h2 { font-size: 1.15rem; margin: 12px 0; }
+.dashboard_summary p { display: block; white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
+.summary_heading p, .summary_note { color: #52647b; font-size: .9rem; margin: 8px 0; }
+.summary_link { display: inline-block; padding: 12px 16px; border: 1px solid #aac3e5; border-radius: 10px; background: #edf4ff; color: #1e4692; text-decoration: none; font-weight: 600; }
+.summary_chart { padding: 20px; margin: 20px 0; border: 1px solid #dbe3ed; border-radius: 16px; background: #fff; }
+.summary_bars { display: grid; gap: 8px; margin-top: 16px; }
+.summary_bar_row { display: grid; grid-template-columns: 95px minmax(0,1fr) 40px; align-items: center; gap: 12px; font-size: .8rem; color: #334155; }
+.summary_bar_track { height: 12px; background: #eef2f7; border-radius: 4px; overflow: hidden; }
+.summary_bar_fill { display: block; height: 100%; background: #466c98; border-radius: 4px; }
+#summaryRetry { min-height: 44px; padding: 10px 16px; border: 1px solid #b9c6d6; border-radius: 10px; cursor: pointer; }
+#summaryResults[hidden], #summaryRetry[hidden] { display: none; }
+#exportAnalytics { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+#exportAnalytics svg { flex-shrink: 0; }
+.admin_action_tooltip { position: fixed; z-index: 10000; width: max-content; max-width: min(280px, calc(100vw - 16px)); padding: 9px 12px; border-radius: 8px; background: #173858; color: #fff; font: .8rem/1.5 system-ui, sans-serif; box-shadow: 0 4px 12px #0002; pointer-events: none; }
+.admin_action_tooltip[hidden] { display: none; }
+.summary_link:focus-visible, #summaryRetry:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+
+/* Analytics presentation: aligned controls and readable aggregate cards. */
+.analytics_container { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.analytics_container .analytics_top_bar { justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.analytics_container .analytics_top_bar h2 { color: #173858; text-align: left; }
+.analytics_container #exportAnalytics { position: static; min-height: 44px; border-radius: 10px; background: #1d4ed8; font: inherit; font-weight: 600; }
+.analytics_container .analytics_filters { align-items: flex-end; padding: 18px; border: 1px solid #dbe3ed; border-radius: 14px; background: #f8fafc; gap: 14px; }
+.analytics_container .analytics_filters label { color: #244665; font-size: .875rem; font-weight: 600; flex: 1 1 150px; min-width: 0; }
+.analytics_container .analytics_filters input, .analytics_container .analytics_filters select { width: 100%; max-width: none; height: 44px; font: inherit; font-weight: 400; }
+.analytics_container #resetFilters { margin: 0; height: 44px; min-height: 44px; flex-shrink: 0; background: #fff; }
+.analytics_container #analyticsScope { padding: 12px 16px; background: #edf4ff; border-radius: 10px; color: #244665; font-size: .9rem; }
+.analytics_container #analyticsResults > p { font-size: .875rem; color: #52647b; margin: 12px 0; }
+.analytics_container .stat_card { align-items: flex-start; text-align: left; padding: 16px; background: #f8fafc; border: 1px solid #dbe3ed; border-top: 4px solid #94a3b8; gap: 8px; }
+.analytics_container .stat_card span { font-size: .85rem; line-height: 1.4; color: #334155; }
+.analytics_container .stat_card h2 { font-size: 1.8rem; color: #173858; margin: 0; }
+.analytics_container .stat_tone_total { border-top-color: #173858; background: #edf4ff; }
+.analytics_container .stat_tone_blue { border-top-color: #4779b8; }
+.analytics_container .stat_tone_amber { border-top-color: #c38a1b; }
+.analytics_container .stat_tone_purple { border-top-color: #8561b2; }
+.analytics_container .stat_tone_green { border-top-color: #3b8b5a; }
+.analytics_container #analyticsResults .chart_card { border: 1px solid #dbe3ed; border-radius: 16px; padding: 22px; margin: 24px 0; box-shadow: 0 2px 8px #17385808; }
+.analytics_container .chart_card h3 { color: #173858; margin-bottom: 16px; font-size: 1.1rem; }
+.analytics_container .chart_card p { display: block; white-space: normal; font-size: .875rem; line-height: 1.6; color: #52647b; margin-bottom: 12px; }
+.review_indicator { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; border: 1px solid #e2bf77; border-left: 5px solid #c38a1b; border-radius: 12px; background: #fff8e7; color: #674d08; text-decoration: none; margin-bottom: 24px; }
+.review_hint { display: block; margin-top: 6px; font-size: .85rem; line-height: 1.5; }
+.review_indicator:hover { background: #fff1cd; }
+.review_indicator:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+@media (max-width: 700px) {
+  .analytics_container .analytics_filters { align-items: stretch; }
+  .analytics_container .analytics_filters label { flex: auto; }
+  .analytics_container #analyticsResults .chart_card { padding: 14px; }
+}
+
+/* Received is a processing state, not a per-user unread marker. */
+.pro-table tbody tr.report_awaiting_review { background: #fff8e7; }
+.pro-table tbody tr.report_awaiting_review:hover { background: #fff1cd; }
+.pro-table tbody tr.report_awaiting_review td:first-child { box-shadow: inset 4px 0 #c38a1b; }
+.awaiting_review_badge { display: block; width: fit-content; margin-top: 6px; padding: 4px 8px; border: 1px solid #e2bf77; border-radius: 8px; background: #fff1cc; color: #674d08; font: 600 .75rem/1.4 system-ui, sans-serif; white-space: nowrap; }
+#processingForm #reloadProcessing { min-height: 44px; margin: 8px 0 8px 8px; padding: 10px 14px; border: 1px solid #b9c6d6; border-radius: 10px; background: #f1f5f9; color: #244665; font: 600 .875rem/1.4 system-ui, sans-serif; cursor: pointer; }
+#processingForm #reloadProcessing:hover:not(:disabled) { background: #e4edf7; border-color: #8da8c8; }
+#processingForm #reloadProcessing:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 480px) {
+  #processingForm #reloadProcessing { margin-left: 0; width: 100%; }
+}

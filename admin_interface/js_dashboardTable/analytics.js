@@ -25,7 +25,7 @@ function clear() {
 function chart(id, rows, line = false) {
     charts.push(new window.Chart(node(id), {
         type: line ? 'line' : 'bar',
-        data: { labels: rows.map(row => row.label), datasets: [{ label: 'Reports', data: rows.map(row => row.count), backgroundColor: '#466c98', borderColor: '#466c98', borderWidth: 2 }] },
+        data: { labels: rows.map(row => row.label), datasets: [{ label: 'Reports', data: rows.map(row => row.count), backgroundColor: line ? '#466c9820' : '#466c98', borderColor: '#466c98', borderWidth: 2, borderRadius: line ? 0 : 5, maxBarThickness: 28, tension: 0.2, fill: line, pointRadius: 3 }] },
         options: { responsive: true, maintainAspectRatio: false, animation: false, indexAxis: line ? 'x' : 'y',
             plugins: { legend: { display: false } },
             scales: { [line ? 'y' : 'x']: { beginAtZero: true, ticks: { precision: 0 } } } },
@@ -41,7 +41,7 @@ function render() {
         node('analyticsScope').textContent = scope;
         node('analyticsResults').hidden = false;
         for (const item of [{ label: 'Total', count: summary.total }, ...summary.statuses]) {
-            const card = document.createElement('div'); card.className = 'stat_card';
+            const card = document.createElement('div'); card.className = 'stat_card stat_tone_' + ({ 'Total':'total', 'Received':'blue', 'For Verification':'amber', 'Referred':'purple', 'Ongoing':'blue', 'Resolved':'green' }[item.label] || 'neutral');
             const label = document.createElement('span'); label.textContent = item.label;
             const count = document.createElement('h2'); count.textContent = item.count;
             card.append(label, count); node('analyticsCounts').append(card);

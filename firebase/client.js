@@ -1,6 +1,6 @@
 import { setOfflineOwner } from './offline-cache.mjs';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, setPersistence, browserSessionPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { firebaseConfig } from "./config.js";
 
@@ -13,7 +13,6 @@ export async function getServices() {
     services = (async () => {
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      await setPersistence(auth, browserSessionPersistence);
       await auth.authStateReady();
       setOfflineOwner(auth.currentUser?.isAnonymous ? null : auth.currentUser?.uid);
       onAuthStateChanged(auth, user => setOfflineOwner(user?.isAnonymous ? null : user?.uid));

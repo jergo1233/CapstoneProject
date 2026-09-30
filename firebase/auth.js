@@ -1,6 +1,6 @@
-import { clearOfflinePrivate } from './offline-cache.mjs';
+import { clearOfflinePrivate, configureOfflinePersistence } from './offline-cache.mjs';
 import { getServices } from "./client.js";
-import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 export async function getRoleProfile(user, role) {
@@ -12,12 +12,21 @@ export async function getRoleProfile(user, role) {
 export async function hasRole(user, role) {
   return Boolean(await getRoleProfile(user, role));
 }
-export async function login(email, password, role) {
+export async function login(email, password, role, remember = false) {
   const { auth } = await getServices();
+  await setPersistence(auth, browserSessionPersistence);
+  clearOfflinePrivate();
   const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
   try {
     if (!await hasRole(user, role)) throw new Error(`This account has no ${role.toLowerCase()} profile. Contact the project administrator.`);
+    if (role === 'Resident' && remember) {
+      await setPersistence(auth, browserLocalPersistence);
+      configureOfflinePersistence(user.uid, true);
+    } else {
+      configureOfflinePersistence(user.uid, false);
+    }
   } catch (error) {
+    clearOfflinePrivate();
     await signOut(auth);
     throw error;
   }

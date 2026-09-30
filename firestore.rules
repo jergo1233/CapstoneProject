@@ -92,6 +92,43 @@ service cloud.firestore {
           || validText(request.resource.data.referredTo, 200));
       allow delete: if false;
     }
+    // Events are saved atomically with the report; read receipts belong to each viewer.
+    function canReadNotification(data) {
+      return signedIn() && ((data.kind == 'new-report' && admin())
+        || (data.kind == 'report-update' && data.recipient == request.auth.uid));
+    }
+    match /notifications/{eventId} {
+      allow read: if canReadNotification(resource.data);
+      allow create: if signedIn() && validNotification();
+      function validNotification() {
+        let data = request.resource.data;
+        let path = /databases/$(database)/documents/reports/$(data.reportId);
+        let after = getAfter(path).data;
+        return data.keys().hasAll(['kind', 'reportId', 'recipient', 'category', 'barangay', 'createdAt'])
+          && data.reportId is string && data.reportId.matches('[A-Za-z0-9_-]{1,128}')
+          && data.createdAt == request.time
+          && data.category == after.issueCategory && data.barangay == after.barangayArea
+          && ((data.kind == 'new-report'
+            && data.keys().hasOnly(['kind', 'reportId', 'recipient', 'category', 'barangay', 'createdAt'])
+            && eventId == data.reportId && data.recipient == 'admins'
+            && !exists(path) && after.timestamp == request.time
+            && after.submitterID == request.auth.uid)
+          || (data.kind == 'report-update' && admin()
+            && data.keys().hasOnly(['kind', 'reportId', 'recipient', 'category', 'barangay', 'createdAt', 'reportStatus', 'referredTo'])
+            && data.recipient == after.submitterID && after.updatedAt == request.time
+            && data.reportStatus == after.reportStatus
+            && data.referredTo == after.get('referredTo', null)
+            && (get(path).data.reportStatus != after.reportStatus
+              || get(path).data.get('referredTo', null) != after.get('referredTo', null))));
+      }
+    }
+    match /notificationUsers/{uid}/reads/{eventId} {
+      allow read: if own(uid);
+      allow create, update: if own(uid)
+        && request.resource.data.keys().hasOnly(['readAt'])
+        && request.resource.data.readAt == request.time
+        && canReadNotification(get(/databases/$(database)/documents/notifications/$(eventId)).data);
+    }
     match /{document=**} {
       allow read, write: if false;
     }

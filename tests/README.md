@@ -147,3 +147,15 @@ Local tests: `node tests/offline.test.mjs`. No console rules or Supabase redeplo
 7. In a browser that supports PWA installation, test its Install/Add to Home Screen option. The manifest starts on the resident Home page. Installation does not extend the sign-in session: closing/reopening may require signing in online again.
 
 Account data uses sessionStorage, is UID-scoped, and is cleared on logout/account changes. It survives navigation/refresh in the current session, not guaranteed browser restarts. Storage restrictions/quota can prevent saving; online functionality should still work. Static app files remain cached. Service workers require HTTPS or localhost; a plain HTTP LAN address on a phone will not enable offline setup.
+
+### In-app notifications
+
+Publish the updated `firestore.rules` before testing/deploying this frontend. No Supabase update is required. Existing report data is not backfilled with notifications.
+
+1. As a resident, submit a new report. As an admin, open the header bell: one new-report entry should appear with an unread badge.
+2. Open the entry: Report Management opens that report and the entry becomes read. A second admin retains their own unread state.
+3. Change its status or referral destination. The owner receives an update; another resident does not. Changing only priority must not create an event.
+4. Open the resident notification: its details open and its unread count decreases. Reopening the app online preserves read state. For persistent sign-in, opt into Keep me signed in before closing the app.
+5. Existing old reports should not suddenly produce alerts. Offline notifications ask for reconnection; this is not closed-app push delivery.
+
+Local notification coverage: `node --test tests/notifications-ui.test.mjs tests/reports.test.mjs tests/admin-reports.test.mjs`. Firestore emulator notification privacy cases are included in `tests/reports-rules.test.mjs` and require the local emulator described above.

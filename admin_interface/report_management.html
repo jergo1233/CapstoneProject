@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style_admin.css">
     <title>Report management</title>
+<link rel="stylesheet" href="../interface/notifications.css">
 </head>
 <body data-report-page>
 
@@ -70,12 +71,25 @@
         </div>
 
         <p id="reportsFeedback" role="status"></p><button id="reportsRetry" type="button" hidden>Retry</button>
-  <!-- Dynamic Container para sa Cards -->
-        <div id="reportsListContainer">
+  <div class="table-container">
+    <table class="pro-table">
+      <thead>
+        <tr>
+          <th>Report ID</th>
+          <th>Resident Name</th>
+          <th>Category</th>
+          <th>Location</th>
+          <th>Actions</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
 
-            
-        </div>
-
+      <tbody id="reportsTableBody">
+        <!-- Rendered via JavaScript -->
+      </tbody>
+    </table>
+  </div>
 <div id="reportEditor" class="modal-overlay" hidden>
   <section class="floating-card" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
     <div class="modal-header"><h2 id="editorTitle">Report details</h2><button id="closeEditor" type="button" class="modal-close" aria-label="Close report">×</button></div>
@@ -99,5 +113,7 @@
 
 <script type="module" src="js_dashboardTable/reports_table.js"></script>
 <script type="module" src="admin_login/login_as_admin.js"></script>
+<script type="module" src="admin-tooltips.js"></script>
+<script type="module" src="../firebase/notifications-ui.js"></script>
 </body>
 </html>

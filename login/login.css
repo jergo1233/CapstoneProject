@@ -142,3 +142,38 @@ body{
     width: 28px;
     height: 28px;
 }
+
+/* Optional resident persistence, matching the login page's warm accents. */
+.remember_panel {
+    margin: 12px 0;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    text-align: left;
+}
+.remember_panel:has(input:checked) {
+    border-color: #e7a45b;
+    background: #fff7ed;
+}
+.remember_panel:focus-within { outline: 2px solid #9a4b16; outline-offset: 3px; }
+.remember_device {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    min-height: 24px;
+    color: #1f3d5b;
+    font-size: .875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    cursor: pointer;
+}
+.remember_device input {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: #a94d14;
+    cursor: pointer;
+}
+.remember_hint { margin-top: 4px; color: #475569; font-size: .8rem; line-height: 1.6; }

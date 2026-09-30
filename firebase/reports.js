@@ -2,7 +2,7 @@ import { readOffline, saveOffline, removeOffline } from './offline-cache.mjs';
 import { validateReportPhoto, uploadReportPhoto } from '../supabase/report-storage.js';
 import { getServices } from './client.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
-import { collection, doc, setDoc, query, where, onSnapshot, serverTimestamp, GeoPoint } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+import { collection, doc, writeBatch, query, where, onSnapshot, serverTimestamp, GeoPoint } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 import { buildTextReport, sortReports, validPin } from './report-model.mjs';
 
 export async function createTextReport(input, pin = null, photo = null) {
@@ -18,7 +18,14 @@ export async function createTextReport(input, pin = null, photo = null) {
     }
     const target = doc(collection(db, 'reports'));
     if (photo) report.supportingImageURL = user.uid + '/' + target.id + '/image';
-    await setDoc(target, report);
+    const batch = writeBatch(db);
+    batch.set(target, report);
+    batch.set(doc(db, 'notifications', target.id), {
+        kind: 'new-report', reportId: target.id, recipient: 'admins',
+        category: report.issueCategory, barangay: report.barangayArea,
+        createdAt: serverTimestamp(),
+    });
+    await batch.commit();
     // Once the report exists, a photo failure must never cause a duplicate report retry.
     let photoFailed = false;
     if (photo) {

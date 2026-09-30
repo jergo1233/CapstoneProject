@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <title>Analytics</title>
     <link rel="stylesheet" href="style_admin.css">
+<link rel="stylesheet" href="../interface/notifications.css">
 </head>
 <body data-report-page>
 
@@ -63,7 +64,7 @@
         <div class="analytics_container">
             
             <div class="analytics_top_bar">
-                <h2>Analytics</h2><button id="exportAnalytics" class="btn_export" disabled>Export PDF</button>
+                <h2>Analytics</h2><button id="exportAnalytics" class="btn_export" disabled><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9V3h12v6M6 18H3V9h18v9h-3M6 14h12v7H6z"/><path d="M17 12h1"/></svg><span>Export PDF</span></button>
             </div>
             <div class="analytics_filters">
                 <label>From <input id="dateFrom" type="date"></label>
@@ -90,5 +91,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="js_dashboardTable/analytics.js"></script>
     <script type="module" src="admin_login/login_as_admin.js"></script>
+<script type="module" src="admin-tooltips.js"></script>
+<script type="module" src="../firebase/notifications-ui.js"></script>
 </body>
 </html>

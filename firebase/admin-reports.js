@@ -69,6 +69,7 @@ export async function updateAdminReport(id, input, expectedUpdatedAt) {
     const { auth, db } = await getServices();
     const uid = auth.currentUser?.uid;
     if (!uid || auth.currentUser.isAnonymous) throw new Error('Sign in with an admin account.');
+    const notification = doc(collection(db, 'notifications'));
     await runTransaction(db, async transaction => {
         const role = await transaction.get(doc(db, 'admins', uid));
         if (!role.exists() || role.data().role !== 'Admin' || auth.currentUser?.uid !== uid) throw new Error('Admin access is required.');
@@ -80,6 +81,15 @@ export async function updateAdminReport(id, input, expectedUpdatedAt) {
         }
         if (auth.currentUser?.uid !== uid) throw new Error('Your account changed. Please reopen the report.');
         transaction.update(target, { ...update, updatedAt: serverTimestamp() });
+        const previous = report.data();
+        if (previous.reportStatus !== update.reportStatus || (previous.referredTo || null) !== update.referredTo) {
+            transaction.set(notification, {
+                kind: 'report-update', reportId: id, recipient: previous.submitterID,
+                category: previous.issueCategory, barangay: previous.barangayArea,
+                reportStatus: update.reportStatus, referredTo: update.referredTo,
+                createdAt: serverTimestamp(),
+            });
+        }
     });
     return { uid };
 }

@@ -20,7 +20,7 @@ test('coordinates are finite and Google links contain only the saved coordinates
     assert.deepEqual(Object.keys(BARANGAY_CENTERS).sort(),[...REPORT_BARANGAYS].sort());
 });
 async function serviceHarness() {
-    const auth={currentUser:{uid:'admin',isAnonymous:false}}, listeners=[], writes=[];
+    const auth={currentUser:{uid:'admin',isAnonymous:false}}, listeners=[], writes=[], notifications=[];
     let authChanged, reportVersion=1, currentRole='Admin';
     const deps={
         getServices:async()=>({auth,db:{}}), onAuthStateChanged:(_,fn)=>{authChanged=fn;fn(auth.currentUser);return()=>{};},
@@ -28,13 +28,14 @@ async function serviceHarness() {
         onSnapshot:(ref,options,next,error)=>{const item={ref,next,error,stopped:false};listeners.push(item);return()=>item.stopped=true;},
         getDoc:async()=>({exists:()=>true,data:()=>({fullName:'Resident Name'})}),
         runTransaction:async(_,fn)=>fn({
-            get:async ref=>ref.startsWith('admins/')?{exists:()=>true,data:()=>({role:currentRole})}:{exists:()=>true,data:()=>({updatedAt:{isEqual:other=>other.version===reportVersion}})},
+            get:async ref=>ref.startsWith('admins/')?{exists:()=>true,data:()=>({role:currentRole})}:{exists:()=>true,data:()=>({submitterID:'resident',issueCategory:'Road',barangayArea:'Dapawan',reportStatus:'Received',referredTo:null,updatedAt:{isEqual:other=>other.version===reportVersion}})},
             update:(ref,data)=>writes.push({ref,data}),
+            set:(ref,data)=>notifications.push({ref,data}),
         }),
         serverTimestamp:()=>({server:true}),navigator:{onLine:true},buildProcessingUpdate,sortReports,
     };
     const api=new Function(...Object.keys(deps),await source('../firebase/admin-reports.js')+';return {watchAdminReports,updateAdminReport};')(...Object.values(deps));
-    return {...api,auth,listeners,writes,change:user=>{auth.currentUser=user;authChanged(user);},
+    return {...api,auth,listeners,writes,notifications,change:user=>{auth.currentUser=user;authChanged(user);},
         revoke:()=>currentRole='Resident',newVersion:()=>reportVersion++,offline:()=>deps.navigator.onLine=false};
 }
 const role=(name='Admin',cache=false)=>({metadata:{fromCache:cache},exists:()=>true,data:()=>({role:name})});
@@ -108,7 +109,7 @@ test('map centers without creating a pin; confirmation, dragging, removal and ba
     delete window.L;controller.show();assert.match(nodes.map_status.textContent,/could not load/);
 });
 async function pageHarness(cards = false) {
-    const html=await readFile(new URL('../admin_interface/dashboard.html',import.meta.url),'utf8');
+    const html=await readFile(new URL('../admin_interface/report_management.html',import.meta.url),'utf8');
     const nodes=Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(([,id])=>[id,new Element()]));
     if (cards) { delete nodes.reportsTableBody; nodes.reportsListContainer = new Element(); }
     const viewers = [];
@@ -163,4 +164,32 @@ test('report cards reuse previews across updates and dispose them on filtering o
     h.error({code:'permission-denied'});
     assert.equal(h.viewers[2].disposed, true);
     assert.equal(h.nodes.reportsListContainer.children.length, 0);
+});
+
+test('Received reports stay highlighted when opened and lose the highlight after status updates', async () => {
+    const h = await pageHarness();
+    h.data([report]);
+    let row = h.nodes.reportsTableBody.children[0];
+    assert.equal(row.className, 'report_awaiting_review');
+    assert.equal(row.children[6].children[0].textContent, 'Awaiting review');
+    row.children[4].children[0].events.click();
+    h.data([report]);
+    assert.equal(h.nodes.reportsTableBody.children[0].className, 'report_awaiting_review');
+    h.data([{...report, reportStatus:'For Verification'}]);
+    row = h.nodes.reportsTableBody.children[0];
+    assert.equal(row.className, '');
+    assert.equal(row.children[6].children.length, 0);
+    h.data([{...report, pending:true}]);
+    assert.equal(h.nodes.reportsTableBody.children[0].className, '');
+});
+
+test('processing sends resident events for status/referral changes, not priority-only edits',async()=>{
+    const h=await serviceHarness();
+    await h.updateAdminReport('report',{reportStatus:'Received',priorityLevel:'High'},{version:1});
+    assert.equal(h.notifications.length,0);
+    await h.updateAdminReport('report',{reportStatus:'Ongoing'},{version:1});
+    assert.equal(h.notifications[0].data.recipient,'resident');
+    assert.equal(h.notifications[0].data.reportStatus,'Ongoing');
+    await h.updateAdminReport('report',{reportStatus:'Received',referredTo:'Engineering'},{version:1});
+    assert.equal(h.notifications[1].data.referredTo,'Engineering');
 });

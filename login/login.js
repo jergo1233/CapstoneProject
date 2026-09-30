@@ -23,7 +23,7 @@ loginForm.addEventListener("submit", async (event) => {
     const button = loginForm.querySelector('[type="submit"]');
     button.disabled = true;
     try {
-        await login(email.value, password.value, "Resident");
+        await login(email.value, password.value, "Resident", document.getElementById("rememberDevice").checked);
         window.location.href = "interface/home.html";
     } catch (error) {
         loginFeedback.textContent = authMessage(error);

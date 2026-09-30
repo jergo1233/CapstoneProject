@@ -18,6 +18,7 @@ function clearPreviews() {
 }
 const message = byId('reportsFeedback'), retry = byId('reportsRetry');
 const modal = byId('reportEditor'), form = byId('processingForm'), feedback = byId('processingFeedback');
+let linkedReport = new URLSearchParams((window.location?.hash || '').slice(1)).get('report');
 let reports = [], selected = null, expectedVersion = null, dirty = false, saving = false;
 let uid = null, epoch = 0, stop, starting = false, allowed = false;
 
@@ -85,10 +86,13 @@ function render() {
     }
     for (const report of filtered) {
         if (table) {
-            const row = node('tr');
+            const awaitingReview = report.reportStatus === 'Received' && !report.pending;
+            const row = node('tr', '', awaitingReview ? 'report_awaiting_review' : '');
             for (const value of [report.id, report.fullName, report.issueCategory, report.barangayArea + ' — ' + report.locationDescription]) row.append(node('td', value));
             const detail = node('td'); detail.append(button('View details / process', () => openReport(report.id)));
-            row.append(detail, node('td', reportDate(report.timestamp)), node('td', report.pending ? 'Saving — not confirmed' : report.reportStatus));
+            const status = node('td', report.pending ? 'Saving — not confirmed' : report.reportStatus);
+            if (awaitingReview) status.append(node('span', 'Awaiting review', 'awaiting_review_badge'));
+            row.append(detail, node('td', reportDate(report.timestamp)), status);
             table.append(row);
         }
         if (cards) {
@@ -132,6 +136,9 @@ function render() {
     if (!filtered.length) {
         if (table) { const row = node('tr'), cell = node('td', query ? 'No matching reports.' : 'No reports available.'); cell.colSpan = 7; row.append(cell); table.append(row); }
         if (cards) cards.append(node('p', query ? 'No matching reports.' : 'No reports available.'));
+    }
+    if (linkedReport && reports.some(report => report.id === linkedReport)) {
+        const id = linkedReport; linkedReport = null; openReport(id);
     }
     if (selected) {
         const report = reports.find(item => item.id === selected);
@@ -212,3 +219,5 @@ window.addEventListener('beforeunload', event => {
 });
 window.addEventListener('online', () => { if (!allowed) void start(); });
 await start();
+
+window.addEventListener('hashchange', () => { linkedReport = new URLSearchParams(window.location.hash.slice(1)).get('report'); render(); });

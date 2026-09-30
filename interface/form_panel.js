@@ -257,3 +257,8 @@ window.addEventListener('offline', () => {
 });
 window.addEventListener('online', () => { if (!retry.hidden) void startHistory(); });
 await startHistory();
+
+window.addEventListener('hashchange', () => {
+    const id = new URLSearchParams(window.location.hash.slice(1)).get('report');
+    if (reports.has(id)) { selectedId = id; renderDetails(reports.get(id)); showPanel(details); }
+});
