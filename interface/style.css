@@ -1933,3 +1933,16 @@ body {
   #report_form .btn_submit { width: 100%; min-height: 48px; }
   #report_form .form_group { scroll-margin-bottom: 90px; }
 }
+
+/* Home hotlines retain the original department artwork and red cards. */
+.home_hotlines { flex: 0 0 auto; align-self: center; margin-bottom: 20px; scroll-margin-top: 12px; }
+.home_hotlines .top_badge { z-index: auto; }
+.home_hotlines a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.home_hotlines .dept_numbers a { display: block; padding: 7px 0; white-space: nowrap; }
+.home_hotlines a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 4px; }
+@media (max-width: 359px) {
+  .home_hotlines .dept_title { flex-basis: 78px; font-size: 11px; }
+  .home_hotlines .dept_title.small_text { font-size: 9px; }
+  .home_hotlines .hotline_item { padding-left: 10px; gap: 4px; }
+  .home_hotlines .dept_logo { width: 36px; height: 36px; flex-basis: 36px; }
+}

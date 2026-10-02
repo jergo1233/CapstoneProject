@@ -135,3 +135,10 @@ test('server without its secret fails closed', async () => {
     const handler = createImageHandler({ ...config, serviceRoleKey: '' }, () => { throw Error('Must not call'); });
     assert.equal((await handler(request())).status, 503);
 });
+
+test('disabled admin profile cannot upload or delete announcement images', async () => {
+    const { handler, storageCalls } = setup({ profileBody: { fields: { role: { stringValue: 'Admin' }, active: { booleanValue: false } } } });
+    assert.equal((await handler(request())).status, 403);
+    assert.equal((await handler(request({ method: 'DELETE' }))).status, 403);
+    assert.equal(storageCalls().length, 0);
+});

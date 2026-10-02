@@ -159,3 +159,13 @@ Publish the updated `firestore.rules` before testing/deploying this frontend. No
 5. Existing old reports should not suddenly produce alerts. Offline notifications ask for reconnection; this is not closed-app push delivery.
 
 Local notification coverage: `node --test tests/notifications-ui.test.mjs tests/reports.test.mjs tests/admin-reports.test.mjs`. Firestore emulator notification privacy cases are included in `tests/reports-rules.test.mjs` and require the local emulator described above.
+
+## Employee management (2026-10-01)
+
+Deployment order and live test steps: `supabase/EMPLOYEE_SETUP.md`. Publish rules and redeploy image-storage before enabling employee disabling. Employee management requires a new server function and private server-only credential; a frontend deployment alone does not activate it.
+
+Local checks: `node --test tests/employee-management.test.mjs tests/employee-access.test.mjs tests/employees-ui.test.mjs tests/admin-routing.test.mjs tests/admin-reports.test.mjs tests/notifications-ui.test.mjs tests/image-storage.test.mjs`. The Firestore emulator suite additionally checks disabled-admin reads/writes and denied client privilege escalation. Mocked backend tests do not verify real email delivery or Supabase runtime compatibility.
+
+Admin password recovery: run `node --test tests/admin-password-reset.test.mjs tests/admin-routing.test.mjs`. On admin login, expand **Forgot password?**, enter a test account email, and request a link without entering a password. Expect neutral feedback and a 60-second button cooldown. Check inbox/spam, complete Firebase's reset form, and sign in with the new password; permissions should remain unchanged. An unknown email should show the same neutral feedback. Offline requests should ask you to reconnect. The cooldown is client-side convenience; confirm Firebase Email Enumeration Protection separately for protection of raw API responses.
+
+Resident login also has **Forgot password?**, using the shared recovery module. Repeat the email/new-password/old-password checks with a resident test account; verify its existing reports remain accessible. Recovery must not change the Keep me signed in choice. Both login pages share the same per-tab reset cooldown.

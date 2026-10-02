@@ -72,7 +72,8 @@ export function createImageHandler(config, fetcher = fetch) {
         if (profile.status === 401) throw new RequestError(401, 'Your sign-in could not be verified.');
         if (profile.status === 403 || profile.status === 404) throw new RequestError(403, 'Admin access is required to manage announcement images.');
         if (!profile.ok) throw new RequestError(503, 'Admin access could not be checked. Please retry.');
-        if ((await profile.json()).fields?.role?.stringValue !== 'Admin') throw new RequestError(403, 'Admin access is required to manage announcement images.');
+        const data = (await profile.json()).fields;
+        if (data?.role?.stringValue !== 'Admin' || data?.active?.booleanValue === false) throw new RequestError(403, 'Admin access is required to manage announcement images.');
     }
     async function reportImage(request, token, id) {
         if (!['GET', 'POST'].includes(request.method)) throw new RequestError(405, 'Report photos cannot be deleted or replaced.');

@@ -152,3 +152,4 @@ body{
 .footer_text a:hover{
     text-decoration:underline;
 }
+.logo_box.project_logo { width:120px; height:120px; object-fit:contain; background:#fff; border:0; border-radius:0; display:block; }

@@ -9,6 +9,7 @@
         <link rel="manifest" href="manifest.webmanifest">
         <meta name="theme-color" content="#1f3d5b">
     <link rel="stylesheet" href="../interface/notifications.css">
+    <link rel="icon" type="image/svg+xml" href="assets/project-icon.svg">
 </head>
     <body>
         <style>.app_container[hidden], #sessionStatus[hidden] { display: none !important; }</style>
@@ -20,7 +21,7 @@
         <div class="app_container" hidden>
             <!-- APP HEADER -->
             <header class="app_header">
-                <div class="app_logo_placeholder"><img src="assets/app-192.png" alt="" class="brand_icon"></div>
+                <div class="app_logo_placeholder"><img src="assets/project-icon.svg" alt="" class="brand_icon"></div>
                 <div class="header_title_block">
                     <h1>Odiongan Municipal Reporting</h1>
                     <p>Odiongan, Romblon</p>
@@ -30,6 +31,87 @@
 
 
             <main class="main_content">
+
+                <section class="hotline_card home_hotlines" id="hotlines" aria-label="Odiongan emergency hotlines">
+                    <!-- Top Left Badge -->
+                    <div class="top_badge">ODIONGAN EMERGENCY HOTLINES</div>
+                    <!-- Header Emergency Section -->
+                    <div class="emergency_header">
+                        <img src="assets/hotline_logo/siren.png" alt="Emergency Icon" class="header_icon">
+                        <a class="emergency_title" href="tel:911">For Emergencies, Call 911</a>
+                    </div>
+                    <!-- Hotlines List -->
+                    <div class="hotline_list">
+                        <!-- Item 1: Fire Station -->
+                        <div class="hotline_item">
+                            <div class="dept_title">
+                                ODIONGAN FIRE STATION
+                            </div>
+                            <div class="dept_numbers">
+                                <a href="tel:09156031413">0915 603 1413</a>
+                                <a href="tel:09988578987">0998 857 8987</a>
+                            </div>
+                            <div class="dept_logo">
+                                <img src="assets/hotline_logo/logo1.jpg" alt="Fire Station Logo">
+                            </div>
+                        </div>
+                        <!-- Item 2: Police Station -->
+                        <div class="hotline_item">
+                            <div class="dept_title">
+                                ODIONGAN POLICE STATION
+                            </div>
+                            <div class="dept_numbers">
+                                <a href="tel:09985985891">0998 598 5891</a>
+                            </div>
+                            <div class="dept_logo">
+                                <img src="assets/hotline_logo/PNP-Logo.png" alt="Police Station Logo">
+                            </div>
+                        </div>
+                        <!-- Item 3: LGU Ambulance -->
+                        <div class="hotline_item">
+                            <div class="dept_title">
+                                ODIONGAN LGU AMBULANCE
+                            </div>
+                            <div class="dept_numbers">
+                                <a href="tel:09190798429">0919 079 8429</a>
+                            </div>
+                            <div class="dept_logo">
+                                <img src="assets/hotline_logo/ambulance-logo-icon-symbol-first-600nw-2563441177.webp" alt="Ambulance Logo">
+                            </div>
+                        </div>
+                        <!-- Item 4: MDRRMO/Rescue -->
+                        <div class="hotline_item">
+                            <div class="dept_title">
+                                MDRRMO/
+                                RESCUE
+                            </div>
+                            <div class="dept_numbers">
+                                <a href="tel:09190798427">0919 079 8427</a>
+                            </div>
+                            <div class="dept_logo">
+                                <img src="assets/hotline_logo/images.png" alt="MDRRMO Logo">
+                            </div>
+                        </div>
+                        <!-- Item 5: MENRO -->
+                        <div class="hotline_item">
+                            <div class="dept_title small_text">
+                                ODIONGAN MUNICIPAL
+
+                                ENVIRONMENT AND
+
+                                NATURAL RESOURCES
+
+                                OFFICE (MENRO)
+                            </div>
+                            <div class="dept_numbers">
+                                <a href="tel:09399042959">0939 904 2959</a>
+                            </div>
+                            <div class="dept_logo">
+                                <img src="assets/hotline_logo/images (5).jpg" alt="MENRO Logo">
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Announcement Section - nag lalaman ng 5 announcement na naka loop-->
                 <section class="announcement_section">
@@ -60,7 +142,7 @@
                 </section>
             </main>
 
-            
+
             <nav class="app_nav">
                 <a href="home.html" class="nav_item active">
                     <span class="nav_icon">
@@ -85,7 +167,7 @@
                     </span>
                     <span>Track Reports</span>
                 </a>
-                <a href="hotlines.html" class="nav_item">
+                <a href="home.html#hotlines" class="nav_item">
                     <span class="nav_icon">
                         <img src="assets/helpline_gray.jpeg" alt="helpline img" class="icon">
                     </span>
@@ -102,7 +184,7 @@
         <script type="module" src="announcements.js"></script>
         <script type="module" src="home-reports.js"></script>
         <script src="offline.js" defer></script>
-        
+
     <script type="module" src="../firebase/resident-session.js"></script>
 <script type="module" src="../firebase/notifications-ui.js"></script>
 </body>

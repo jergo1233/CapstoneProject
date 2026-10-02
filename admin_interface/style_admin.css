@@ -1442,3 +1442,61 @@ font-size: 1.1rem;
 @media (max-width: 480px) {
   #processingForm #reloadProcessing { margin-left: 0; width: 100%; }
 }
+
+/* Employee management uses the same navy, warm accent and rounded admin panels. */
+[data-employee-nav][hidden], #employeePanel[hidden] { display: none !important; }
+.main_content.employee_page {
+  margin: 0 0 0 260px;
+  width: calc(100% - 260px);
+  min-width: 0;
+  padding: 99px 24px 32px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.employee_page p { display: block; white-space: normal; overflow-wrap: anywhere; }
+.employee_page p[hidden] { display: none; }
+.employee_page .summary_heading > div { min-width: 0; }
+.employee_page .summary_heading h1 { margin: 0; color: #173858; }
+.employee_page .employee_hint { margin: 10px 0 18px; }
+.employee_page .employee_card { min-width: 0; }
+.employee_page .employee_table :is(th, td) { overflow-wrap: anywhere; }
+.employee_card { background: #fff; border: 1px solid #dbe3ed; border-radius: 16px; padding: 24px; margin: 20px 0; box-shadow: 0 3px 12px #17385808; }
+.employee_card h2 { color: #173858; margin: 0 0 12px; font-size: 1.2rem; }
+.employee_hint { color: #52647b; font-size: .9rem; line-height: 1.6; }
+.employee_form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: end; }
+.employee_form label { display: grid; gap: 8px; font-weight: 600; color: #173858; }
+.employee_form input { box-sizing: border-box; width: 100%; padding: 12px; border: 1px solid #bacbdf; border-radius: 10px; font: inherit; background: #fff; }
+.employee_page button { width: auto; min-height: 34px; padding: 7px 11px; border: 1px solid #bacbdf; border-radius: 10px; background: #f7f9fc; color: #173858; font: 600 .85rem/1.3 system-ui, sans-serif; cursor: pointer; }
+.employee_page button:hover:not(:disabled) { background: #eaf1fa; }
+.employee_page button.employee_primary { background: #173858; color: white; border-color: #173858; }
+.employee_page button.employee_primary:hover:not(:disabled) { background: #244d73; }
+.employee_page button:disabled { opacity: .55; cursor: default; }
+.employee_page :is(button,input):focus-visible { outline: 3px solid #eda344; outline-offset: 2px; }
+.employee_table_scroll { overflow-x: auto; }
+.employee_table { width: 100%; border-collapse: collapse; text-align: left; font-size: .95rem; }
+.employee_table th { background: #f1f5fa; color: #173858; }
+.employee_table th, .employee_table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+.employee_email { display: block; color: #52647b; font-size: .85rem; margin-top: 5px; overflow-wrap: anywhere; }
+.employee_badge { display: inline-block; border-radius: 20px; padding: 5px 10px; font-weight: 600; white-space: nowrap; }
+.employee_badge.enabled { background: #e5f4eb; color: #23633b; }
+.employee_badge.disabled { background: #fbe8e8; color: #942d35; }
+.employee_actions button { margin: 3px; padding: 6px 9px; min-height: 32px; font-size: .8rem; }
+.employee_form .employee_primary { justify-self: start; }
+.employee_page .admin_notice.success { background: #ecf9f0; border-color: #84c897; color: #23633b; }
+.employee_page .admin_notice.warning { background: #fff6dc; border-color: #e6ba54; color: #785000; }
+.employee_page .admin_notice.error { background: #fff0f0; border-color: #e5a0a0; color: #942d35; }
+@media (max-width: 1100px) { .employee_form { grid-template-columns: 1fr 1fr; } }
+
+.employee_dialog { width: min(520px, calc(100vw - 40px)); max-height: calc(100dvh - 48px); box-sizing: border-box; overflow-y: auto; padding: 28px; border: 1px solid #dbe3ed; border-radius: 18px; color: #173858; font-family: system-ui, sans-serif; box-shadow: 0 16px 48px #10263d40; }
+.employee_dialog::backdrop { background: #10263d88; }
+.employee_dialog h2 { margin: 0 0 12px; font-size: 1.3rem; }
+.employee_dialog_fields { display: grid; gap: 16px; margin: 20px 0; }
+.employee_dialog_fields[hidden] { display: none; }
+.employee_dialog_fields label { display: grid; gap: 8px; font-weight: 600; }
+.employee_dialog_fields input { width: 100%; box-sizing: border-box; border: 1px solid #bacbdf; border-radius: 10px; padding: 12px; font: inherit; }
+.employee_transfer_warning { background: #fff6dc; color: #785000; border-left: 4px solid #e6ba54; padding: 14px; border-radius: 8px; font-size: .95rem; line-height: 1.6; }
+.employee_dialog_actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+
+@media (max-width: 779px) {
+  .main_content.employee_page { margin: 0; width: 100%; padding: 16px; }
+  .employee_form { grid-template-columns: minmax(0, 1fr); }
+}

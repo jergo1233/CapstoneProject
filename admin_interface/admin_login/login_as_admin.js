@@ -6,7 +6,7 @@ const isLoginPage = Boolean(document.getElementById('admin_email'));
 const loginPath = shortRoutes ? '/admin' : 'admin_login/admin.html';
 if (shortRoutes) {
     const routes = { 'dashboard.html': '/admin/dashboard', 'report_management.html': '/admin/reports',
-        'analytics.html': '/admin/analytics', 'admin_announcement.html': '/admin/announcements' };
+        'employees.html': '/admin/employees', 'analytics.html': '/admin/analytics', 'admin_announcement.html': '/admin/announcements' };
     document.querySelectorAll('a[href]').forEach(link => {
         const route = routes[link.getAttribute('href')];
         if (route) link.setAttribute('href', route);
@@ -27,6 +27,7 @@ if (isLoginPage) {
         document.getElementById("eyeIcon").src = `../assets_admin/${password.type === "password" ? "hides" : "eye"}.png`;
     });
     const feedback = document.createElement("p");
+    feedback.className = "login_feedback";
     feedback.setAttribute("role", "alert");
     form.after(feedback);
     form.addEventListener("submit", async (event) => {

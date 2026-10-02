@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const root = new URL('../', import.meta.url);
 const config = JSON.parse(await readFile(new URL('vercel.json', root), 'utf8'));
 test('each short admin route serves an existing page with resolvable local assets', async () => {
-    assert.equal(config.rewrites.length, 5);
+    assert.equal(config.rewrites.length, 6);
     for (const {source, destination} of config.rewrites) {
         const html = await readFile(new URL(destination.slice(1), root), 'utf8');
         const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];

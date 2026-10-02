@@ -7,7 +7,7 @@ export async function getRoleProfile(user, role) {
   if (!user) return null;
   const { db } = await getServices();
   const profile = await getDoc(doc(db, role === "Admin" ? "admins" : "residents", user.uid));
-  return profile.exists() && profile.data().role === role ? profile.data() : null;
+  return profile.exists() && profile.data().role === role && (role !== 'Admin' || profile.data().active !== false) ? profile.data() : null;
 }
 export async function hasRole(user, role) {
   return Boolean(await getRoleProfile(user, role));

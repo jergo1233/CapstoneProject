@@ -14,11 +14,12 @@
     <link rel="stylesheet" href="style_admin.css">
     <title>Report management</title>
 <link rel="stylesheet" href="../interface/notifications.css">
+    <link rel="icon" type="image/svg+xml" href="../interface/assets/project-icon.svg">
 </head>
 <body data-report-page>
 
     <header class="dashboard_header">    
-        <div class="header_logo_placeholder"><img src="../interface/assets/app-192.png" alt="" class="brand_icon"></div>
+        <div class="header_logo_placeholder"><img src="../interface/assets/project-icon.svg" alt="" class="brand_icon"></div>
                 <div class="header_title_block">
                     <h1>Odiongan Municipal Reporting</h1>
                     <p>Odiongan, Romblon</p>
@@ -47,6 +48,10 @@
                 <p class="nav_icon" >Announcement</p>
             </a>
            
+        <a href="employees.html" class="center_icon" data-employee-nav hidden>
+                <img src="../interface/assets/account_gray.jpeg" alt="" class="nav_icon">
+                <p class="nav_icon">Employee Accounts</p>
+            </a>
         </div>
         <div class="logout_container">
         <a href="#" class="logout_link" onclick="handleLogout(event)">
@@ -115,5 +120,6 @@
 <script type="module" src="admin_login/login_as_admin.js"></script>
 <script type="module" src="admin-tooltips.js"></script>
 <script type="module" src="../firebase/notifications-ui.js"></script>
+<script type="module" src="employee-access.js"></script>
 </body>
 </html>

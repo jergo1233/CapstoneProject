@@ -67,7 +67,7 @@ async function start() {
         };
         if(isAdmin){let subscribed=false;stops.push(onSnapshot(doc(db,'admins',uid),snapshot=>{
             if(current!==generation || snapshot.metadata.fromCache)return;
-            if(!snapshot.exists() || snapshot.data().role!=='Admin'){fail();return;}
+            if(!snapshot.exists() || snapshot.data().role!=='Admin' || snapshot.data().active===false){fail();return;}
             if(!subscribed){subscribed=true;subscribe();}
         },fail));}else subscribe();
     });

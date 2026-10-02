@@ -16,6 +16,8 @@ body{
 
 .login_card{
     width:450px;
+    max-width:calc(100% - 32px);
+    margin:24px 0;
     background:#fff;
     border-radius:22px;
     padding:34px;
@@ -133,3 +135,30 @@ body{
     width: 28px;
     height: 28px;
 }
+
+.password_reset { margin-top:16px; color:#193858; font-size:14px; }
+.login_feedback:not(:empty) {
+    margin-top:14px;
+    padding:12px 14px;
+    border:1px solid #efc3c3;
+    border-left:4px solid #c84949;
+    border-radius:10px;
+    background:#fdecec;
+    color:#9b2828;
+    font-size:14px;
+    font-weight:400;
+    line-height:1.5;
+    overflow-wrap:anywhere;
+}
+.password_reset summary { cursor:pointer; font-weight:600; width:fit-content; margin:auto; }
+.password_reset form { margin-top:12px; padding:16px; border:1px solid #d7e2ef; border-radius:12px; background:#f7f9fc; }
+.password_reset p { line-height:1.5; margin-bottom:12px; overflow-wrap:anywhere; }
+.password_reset label { display:block; margin-bottom:6px; font-weight:600; }
+.password_reset button { padding:10px 14px; border:1px solid #b8cbe0; border-radius:10px; background:#fff; color:#193858; font-weight:600; cursor:pointer; }
+.password_reset button:disabled { opacity:.65; cursor:default; }
+.password_reset :focus-visible { outline:2px solid #d77b20; outline-offset:3px; }
+#resetMessage { margin:12px 0 0; padding:10px; border-radius:8px; background:#fff3d9; color:#77510c; }
+#resetMessage[data-state="success"] { background:#e8f5ed; color:#256139; }
+#resetMessage[data-state="error"] { background:#fdecec; color:#9b2828; }
+
+.logo_box.project_logo { width:120px; height:120px; object-fit:contain; background:#fff; border:0; border-radius:0; display:block; }

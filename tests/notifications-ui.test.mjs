@@ -49,3 +49,13 @@ test('admin waits for role verification and clears events on revocation, ignorin
  assert.equal(h.list.children.length,0);assert.ok(h.listeners.every(item=>item.stopped));
  h.listeners[1].next(snapshot([event]));assert.equal(h.list.children.length,0);
 });
+
+test('disabling an admin clears notification data even while their role remains Admin', async()=>{
+ const h=await setup(true);
+ h.listeners[0].next({metadata:{fromCache:false},exists:()=>true,data:()=>({role:'Admin'})});
+ h.listeners[1].next(snapshot([{...event,kind:'new-report'}]));h.listeners[2].next(snapshot([]));
+ assert.equal(h.list.children.length,1);
+ h.listeners[0].next({metadata:{fromCache:false},exists:()=>true,data:()=>({role:'Admin',active:false})});
+ assert.equal(h.list.children.length,0);
+ h.listeners[1].next(snapshot([event]));assert.equal(h.list.children.length,0);
+});

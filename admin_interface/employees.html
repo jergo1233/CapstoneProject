@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <script>
+            if (/^\/admin(?:\/|$)/.test(location.pathname)) {
+                const base = document.createElement('base');
+                base.href = '/admin_interface/';
+                document.head.append(base);
+            }
+        </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Accounts - Odiongan</title>
+    <link rel="stylesheet" href="style_admin.css">
+<link rel="stylesheet" href="../interface/notifications.css">
+    <link rel="icon" type="image/svg+xml" href="../interface/assets/project-icon.svg">
+</head>
+<body data-report-page>
+
+    <header class="dashboard_header">
+        <div class="header_logo_placeholder"><img src="../interface/assets/project-icon.svg" alt="" class="brand_icon"></div>
+                <div class="header_title_block">
+                    <h1>Odiongan Municipal Reporting</h1>
+                    <p>Odiongan, Romblon</p>
+                </div>
+    </header>
+
+    <section class="side_bar">
+        <div class="nav_nemu">
+            <a href="dashboard.html" class="center_icon">
+                <img src="assets_admin/home.png" alt="icon" class="nav_icon">
+                <p  class="nav_icon">Dashboard</p>
+            </a>
+
+            <a href="report_management.html" class="center_icon" >
+                <img src="assets_admin/document.png" alt="icon" class="nav_icon">
+                <p class="nav_icon">Report management</p>
+            </a>
+
+            <a href="analytics.html" class="center_icon" >
+                <img src="assets_admin/data-management (1).png" alt="icon" class="nav_icon">
+                <p class="nav_icon" >Analytics</p>
+            </a>
+
+            <a href="admin_announcement.html" class="center_icon" >
+                <img src="assets_admin/megaphone (1).png" alt="icon" class="nav_icon" >
+                <p class="nav_icon" >Announcement</p>
+            </a>
+
+        <a href="employees.html" class="center_icon active" data-employee-nav hidden>
+                <img src="../interface/assets/account_gray.jpeg" alt="" class="nav_icon">
+                <p class="nav_icon">Employee Accounts</p>
+            </a>
+        </div>
+        <div class="logout_container">
+        <a href="#" class="logout_link" onclick="handleLogout(event)">
+            <img src="assets_admin/Picture1.png" alt="Logout Icon" class="logout_icon">
+            <span>Log-out</span>
+        </a>
+    </div>
+    </section>
+
+<main class="main_content employee_page">
+    <div class="summary_heading"><div><h1>Employee Accounts</h1><p>Manage staff access to municipal reports and announcements.</p></div></div>
+    <p id="employeeMessage" class="admin_notice" role="status" aria-live="polite">Checking main-admin access…</p>
+    <div id="employeePanel" hidden>
+        <section class="employee_card" aria-labelledby="employeeCreateTitle">
+            <h2 id="employeeCreateTitle">Add employee</h2>
+            <p class="employee_hint">Use a separate work email. The employee will receive a password reset email to choose their own password.</p>
+            <form id="employeeForm" class="employee_form">
+                <label>Full name<input name="fullName" required maxlength="200" autocomplete="off"></label>
+                <label>Work email<input name="emailAddress" type="email" required maxlength="254" autocomplete="off"></label>
+                <label>Office<input name="officeName" required maxlength="200" autocomplete="off"></label>
+                <button type="submit" class="employee_primary">Add employee</button>
+            </form>
+        </section>
+        <section class="employee_card" aria-labelledby="employeeListTitle">
+            <div class="summary_heading"><h2 id="employeeListTitle">Staff accounts</h2><button type="button" id="employeeRefresh">Refresh list</button></div>
+            <p class="employee_hint">Disabling access blocks admin tools. Reports and announcements remain saved. Main-admin accounts are protected. To hand over your account-management permission, choose Transfer access on an active employee.</p>
+            <div class="employee_table_scroll"><table class="employee_table">
+                <thead><tr><th scope="col">Employee</th><th scope="col">Office</th><th scope="col">Access</th><th scope="col">Actions</th></tr></thead>
+                <tbody id="employeeList"></tbody>
+            </table></div>
+            <p id="employeeEmpty" hidden>No employee accounts to show.</p>
+            <button type="button" id="employeeMore" hidden>Load more employees</button>
+        </section>
+    </div>
+    <p id="employeeReturn" hidden><a href="dashboard.html" class="summary_link">Return to Dashboard →</a></p>
+    <dialog id="employeeDialog" class="employee_dialog" aria-labelledby="employeeDialogTitle">
+        <form id="employeeActionForm">
+            <h2 id="employeeDialogTitle">Edit employee</h2>
+            <p id="employeeTarget" class="employee_hint"></p>
+            <div id="employeeEditFields" class="employee_dialog_fields">
+                <label>Full name<input id="employeeEditName" maxlength="200" autocomplete="off"></label>
+                <label>Office<input id="employeeEditOffice" maxlength="200" autocomplete="off"></label>
+                <p class="employee_hint">This updates the employee profile. Their sign-in email stays the same.</p>
+            </div>
+            <div id="employeeTransferFields" class="employee_dialog_fields" hidden>
+                <p class="employee_transfer_warning">This employee will manage staff accounts. You will remain an ordinary admin and lose access to Employee Accounts. They must have signed in at least once before the handover.</p>
+                <label>Your current password<input id="employeeTransferPassword" type="password" autocomplete="current-password"></label>
+                <label>Type TRANSFER to confirm<input id="employeeTransferConfirmation" autocomplete="off" spellcheck="false"></label>
+            </div>
+            <p id="employeeActionMessage" class="admin_notice" role="status" aria-live="polite"></p>
+            <div class="employee_dialog_actions">
+                <button id="employeeActionCancel" type="button">Cancel</button>
+                <button id="employeeActionSave" type="submit" class="employee_primary">Save changes</button>
+            </div>
+        </form>
+    </dialog>
+</main>
+
+
+
+<script type="module" src="employees.js"></script>
+<script type="module" src="admin_login/login_as_admin.js"></script>
+<script type="module" src="admin-tooltips.js"></script>
+<script type="module" src="../firebase/notifications-ui.js"></script>
+<script type="module" src="employee-access.js"></script>
+</body>
+</html>

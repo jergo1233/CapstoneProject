@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="login/login.css">
+    <link rel="icon" type="image/svg+xml" href="interface/assets/project-icon.svg">
 </head>
 <body>
 
 <div class="login_card">
-    <p class="logo_box">LOGO</p>
-    <p class="system_title">SYSTEM TITLE</p>
+    <img class="logo_box project_logo" src="interface/assets/project-icon.svg" alt="Odiongan reporting logo">
+    <p class="system_title">Odiongan Municipal Reporting</p>
     <p class="subtitle">Log into your account</p>
 
     <form id="loginForm">
@@ -39,9 +40,22 @@
 
     <p id="loginFeedback" class="login_feedback" role="alert" aria-live="polite" hidden></p>
 
+    <details class="password_reset" id="passwordReset">
+        <summary>Forgot password?</summary>
+        <form id="passwordResetForm">
+            <p>Enter your account email to request a password reset link.</p>
+            <div class="input_group">
+                <label for="resetEmail">Email address</label>
+                <input type="email" id="resetEmail" autocomplete="email" maxlength="254" required>
+            </div>
+            <button type="submit" id="resetSubmit">Send reset email</button>
+            <p id="resetMessage" role="status" aria-live="polite" hidden></p>
+        </form>
+    </details>
     <div class="footer_text">New resident? <a href="register.html">Create account</a></div>
 </div>
 
 <script type="module" src="login/login.js"></script>
+<script type="module" src="login/password-reset.js"></script>
 </body>
 </html>

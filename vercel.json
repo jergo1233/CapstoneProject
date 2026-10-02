@@ -21,6 +21,10 @@
     {
       "source": "/admin/analytics",
       "destination": "/admin_interface/analytics.html"
+    },
+    {
+      "source": "/admin/employees",
+      "destination": "/admin_interface/employees.html"
     }
   ],
   "redirects": [
@@ -47,6 +51,11 @@
     {
       "source": "/admin/analytics/",
       "destination": "/admin/analytics",
+      "permanent": false
+    },
+    {
+      "source": "/admin/employees/",
+      "destination": "/admin/employees",
       "permanent": false
     }
   ]

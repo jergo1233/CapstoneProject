@@ -21,14 +21,14 @@ test('coordinates are finite and Google links contain only the saved coordinates
 });
 async function serviceHarness() {
     const auth={currentUser:{uid:'admin',isAnonymous:false}}, listeners=[], writes=[], notifications=[];
-    let authChanged, reportVersion=1, currentRole='Admin';
+    let authChanged, reportVersion=1, currentRole='Admin', active=true;
     const deps={
         getServices:async()=>({auth,db:{}}), onAuthStateChanged:(_,fn)=>{authChanged=fn;fn(auth.currentUser);return()=>{};},
         collection:(_,name)=>name,doc:(_,collection,id)=>collection+'/'+id,
         onSnapshot:(ref,options,next,error)=>{const item={ref,next,error,stopped:false};listeners.push(item);return()=>item.stopped=true;},
         getDoc:async()=>({exists:()=>true,data:()=>({fullName:'Resident Name'})}),
         runTransaction:async(_,fn)=>fn({
-            get:async ref=>ref.startsWith('admins/')?{exists:()=>true,data:()=>({role:currentRole})}:{exists:()=>true,data:()=>({submitterID:'resident',issueCategory:'Road',barangayArea:'Dapawan',reportStatus:'Received',referredTo:null,updatedAt:{isEqual:other=>other.version===reportVersion}})},
+            get:async ref=>ref.startsWith('admins/')?{exists:()=>true,data:()=>({role:currentRole,active})}:{exists:()=>true,data:()=>({submitterID:'resident',issueCategory:'Road',barangayArea:'Dapawan',reportStatus:'Received',referredTo:null,updatedAt:{isEqual:other=>other.version===reportVersion}})},
             update:(ref,data)=>writes.push({ref,data}),
             set:(ref,data)=>notifications.push({ref,data}),
         }),
@@ -36,7 +36,7 @@ async function serviceHarness() {
     };
     const api=new Function(...Object.keys(deps),await source('../firebase/admin-reports.js')+';return {watchAdminReports,updateAdminReport};')(...Object.values(deps));
     return {...api,auth,listeners,writes,notifications,change:user=>{auth.currentUser=user;authChanged(user);},
-        revoke:()=>currentRole='Resident',newVersion:()=>reportVersion++,offline:()=>deps.navigator.onLine=false};
+        revoke:()=>currentRole='Resident',disable:()=>active=false,newVersion:()=>reportVersion++,offline:()=>deps.navigator.onLine=false};
 }
 const role=(name='Admin',cache=false)=>({metadata:{fromCache:cache},exists:()=>true,data:()=>({role:name})});
 const snapshot={metadata:{fromCache:false},docs:[{id:'report',data:()=>({submitterID:'resident'}),metadata:{hasPendingWrites:false}}]};
@@ -192,4 +192,15 @@ test('processing sends resident events for status/referral changes, not priority
     assert.equal(h.notifications[0].data.reportStatus,'Ongoing');
     await h.updateAdminReport('report',{reportStatus:'Received',referredTo:'Engineering'},{version:1});
     assert.equal(h.notifications[1].data.referredTo,'Engineering');
+});
+
+ test('disabled admin loses live report data and cannot save processing updates',async()=>{
+    const h=await serviceHarness(),results=[];
+    await h.watchAdminReports(items=>results.push(items),()=>{});
+    h.listeners[0].next(role());h.listeners[1].next(snapshot);await tick();
+    assert.equal(results.at(-1).length,1);
+    h.listeners[0].next({metadata:{fromCache:false},exists:()=>true,data:()=>({role:'Admin',active:false})});
+    assert.equal(results.at(-1).length,0);assert.equal(h.listeners[1].stopped,true);
+    h.disable();await assert.rejects(h.updateAdminReport('report',{reportStatus:'Ongoing'},{version:1}),/Admin access/);
+    assert.equal(h.writes.length,0);
 });

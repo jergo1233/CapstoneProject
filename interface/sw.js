@@ -1,6 +1,6 @@
 // Increment the version when changing the offline application shell.
 const CACHE_PREFIX = 'odiongan-shell-' + encodeURIComponent(self.registration.scope);
-const CACHE_NAME = CACHE_PREFIX + '-v20';
+const CACHE_NAME = CACHE_PREFIX + '-v23';
 const IMAGE_CACHE = CACHE_PREFIX + '-public-images-v1';
 const LOCAL_FILES = [
     "../firebase/notifications-ui.js",
@@ -37,7 +37,7 @@ const LOCAL_FILES = [
     "assets/account_gray.jpeg",
     "assets/announcement.png",
     "assets/announcement_gray.jpeg",
-    "assets/app-192.png",
+    "assets/project-icon.svg",
     "assets/app-512.png",
     "assets/helpline.png",
     "assets/helpline_gray.jpeg",

@@ -27,7 +27,7 @@ export async function watchAdminReports(onData, onError, { includeNames = true }
         // Wait for a server role result before displaying cached private reports.
         stopRole = onSnapshot(doc(db, 'admins', user.uid), { includeMetadataChanges: true }, role => {
             if (!valid() || role.metadata.fromCache) return;
-            if (!role.exists() || role.data().role !== 'Admin') {
+            if (!role.exists() || role.data().role !== 'Admin' || role.data().active === false) {
                 fail(Object.assign(new Error('Admin access is required.'), { code: 'permission-denied' })); return;
             }
             if (active) return;
@@ -72,7 +72,7 @@ export async function updateAdminReport(id, input, expectedUpdatedAt) {
     const notification = doc(collection(db, 'notifications'));
     await runTransaction(db, async transaction => {
         const role = await transaction.get(doc(db, 'admins', uid));
-        if (!role.exists() || role.data().role !== 'Admin' || auth.currentUser?.uid !== uid) throw new Error('Admin access is required.');
+        if (!role.exists() || role.data().role !== 'Admin' || role.data().active === false || auth.currentUser?.uid !== uid) throw new Error('Admin access is required.');
         const target = doc(db, 'reports', id);
         const report = await transaction.get(target);
         if (!report.exists()) throw new Error('This report is no longer available.');

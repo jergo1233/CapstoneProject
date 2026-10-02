@@ -221,3 +221,17 @@ test('notification queries are owner/kind scoped and read receipts cannot affect
     await expectStatus(await request('/notificationUsers/resident-a/reads/update-owner','GET',undefined,b),403);
     await expectStatus(await request('/notifications/update-owner','PATCH',{fields:{recipient:field('resident-b')}},a),403);
 });
+
+test('disabled admins lose report/profile/notification access; clients cannot elevate or re-enable themselves',async()=>{
+    await expectStatus(await request('/admins/admin-a','PATCH',{fields:{role:field('Admin'),active:{booleanValue:false}}},'owner'),200);
+    await expectStatus(await request('/reports/owned-report','GET',undefined,admin),403);
+    await expectStatus(await request('/residents/resident-a','GET',undefined,admin),403);
+    await expectStatus(await request('/notifications/notified-report','GET',undefined,admin),403);
+    await expectStatus(await update({reportStatus:'Resolved'}),403);
+    await expectStatus(await request('/admins/admin-a','GET',undefined,admin),200);
+    for(const credential of [a,admin]) {
+        await expectStatus(await request('/admins/admin-a','PATCH',{fields:{role:field('Admin'),active:{booleanValue:true},canManageEmployees:{booleanValue:true}}},credential),403);
+    }
+    await expectStatus(await request('/admins/admin-a','PATCH',{fields:{role:field('Admin'),active:{booleanValue:true}}},'owner'),200);
+    await expectStatus(await request('/reports/owned-report','GET',undefined,admin),200);
+});
