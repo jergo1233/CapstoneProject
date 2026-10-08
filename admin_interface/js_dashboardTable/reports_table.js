@@ -50,7 +50,11 @@ function showDetails(report, resetDraft = false) {
         ['Barangay', report.barangayArea], ['Landmark', report.locationDescription],
         ['Description', report.issueDescription], ['Submitted', reportDate(report.timestamp)],
         ['Last updated', reportDate(report.updatedAt)], ['Saved status', report.reportStatus],
-    ]) details.append(node('p', label + ': ' + (value || 'Not available')));
+    ]) {
+        const row = node('p', '', 'report_detail_row');
+        row.append(node('strong', label, 'report_detail_label'), node('span', value || 'Not available', 'report_detail_value'));
+        details.append(row);
+    }
     details.append(locationLink(report));
     photoViewer.set(report);
     if (resetDraft) {
